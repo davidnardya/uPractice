@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "126937607748",
+    "firebase_url": "https://upractice-2b183.firebaseio.com",
+    "project_id": "upractice-2b183",
+    "storage_bucket": "upractice-2b183.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:126937607748:android:37338cc954ae49b12c9611",
+        "android_client_info": {
+          "package_name": "com.davidnardya.upractice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "126937607748-6a3lrnjkd7q30blq1ji67lgmg6t7jpk2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.davidnardya.upractice",
+            "certificate_hash": "9f2033852c8cf44bb3adc445465224d74fe89b47"
+          }
+        },
+        {
+          "client_id": "126937607748-i4ftm58kh7av1rpob23kdsk6d7fgpojc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCF9DbxkElNI9pl6TAqifwiS3r1uMoTZtA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "126937607748-i4ftm58kh7av1rpob23kdsk6d7fgpojc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
