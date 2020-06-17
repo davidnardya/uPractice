@@ -31,9 +31,9 @@ public class Exercise {
         this.exerciseDescription = exerciseDescription;
     }
 
-    public ExerciseStatus getExerciseStatus() {
-        return exerciseStatus;
-    }
+//    public ExerciseStatus getExerciseStatus() {
+//        return exerciseStatus;
+//    }
 
     public void setExerciseStatus(ExerciseStatus exerciseStatus) {
         this.exerciseStatus = exerciseStatus;
