@@ -1,4 +1,4 @@
-package com.davidnardya.upractice;
+package com.davidnardya.upractice.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.davidnardya.upractice.R;
 import com.davidnardya.upractice.pojo.Plan;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;

@@ -11,12 +11,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AddNewExerciseActivity"></activity>
-        <activity android:name=".AddNewPlanActivity" />
-        <activity android:name=".ViewExerciseActivity" />
-        <activity android:name=".ViewPlansActivity" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".LoginActivity">
+        <activity android:name=".activities.AddNewExerciseActivity"></activity>
+        <activity android:name=".activities.AddNewPlanActivity" />
+        <activity android:name=".activities.ViewExerciseActivity" />
+        <activity android:name=".activities.ViewPlanActivity" />
+        <activity android:name=".activities.MainActivity" />
+        <activity android:name=".activities.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddNewPlanActivity">
+    tools:context=".activities.AddNewPlanActivity">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/new_plan_headline_card_view"

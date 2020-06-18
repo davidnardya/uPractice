@@ -1,8 +1,10 @@
-package com.davidnardya.upractice;
+package com.davidnardya.upractice.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.davidnardya.upractice.R;
 
 public class ViewExerciseActivity extends AppCompatActivity {
 
