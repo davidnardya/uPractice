@@ -11,7 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ViewExerciseActivity"></activity>
+        <activity android:name=".AddNewExerciseActivity"></activity>
+        <activity android:name=".AddNewPlanActivity" />
+        <activity android:name=".ViewExerciseActivity" />
         <activity android:name=".ViewPlansActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".LoginActivity">
