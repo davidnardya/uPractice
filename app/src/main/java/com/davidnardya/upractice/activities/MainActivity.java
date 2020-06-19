@@ -1,6 +1,7 @@
 package com.davidnardya.upractice.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +18,9 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
+
+    private RecyclerView planView;
+
 
     private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
     private CollectionReference plansRef = dataBase.collection("plans");
