@@ -1,19 +1,18 @@
 package com.davidnardya.upractice.pojo;
 
+
 import java.util.ArrayList;
 
 public class Plan {
 
-    private String planName, planDescription;
-    private ArrayList<Exercise> exerciseArrayList = new ArrayList<>();
+    private String planName, planDescription, planID;
 
     public Plan() {
     }
 
-    public Plan(String planName, String planDescription, ArrayList<Exercise> exerciseArrayList) {
+    public Plan(String planName, String planDescription) {
         this.planName = planName;
         this.planDescription = planDescription;
-        this.exerciseArrayList = exerciseArrayList;
     }
 
     public String getPlanName() {
@@ -32,12 +31,12 @@ public class Plan {
         this.planDescription = planDescription;
     }
 
-    public ArrayList<Exercise> getExerciseArrayList() {
-        return exerciseArrayList;
+    public String getPlanID() {
+        return planID;
     }
 
-    public void setExerciseArrayList(ArrayList<Exercise> exerciseArrayList) {
-        this.exerciseArrayList = exerciseArrayList;
+    public void setPlanID(String planID) {
+        this.planID = planID;
     }
 
     @Override
@@ -45,7 +44,6 @@ public class Plan {
         return "Plan{" +
                 "planName='" + planName + '\'' +
                 ", planDescription='" + planDescription + '\'' +
-                ", exerciseArrayList=" + exerciseArrayList +
                 '}';
     }
 }

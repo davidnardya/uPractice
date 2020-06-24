@@ -2,17 +2,21 @@ package com.davidnardya.upractice.pojo;
 
 import java.util.Calendar;
 
-public class Exercise {
-    private String exerciseName;
-    private String exerciseDescription;
-    private ExerciseStatus exerciseStatus;
-    private Calendar alertDate;
 
-    public Exercise(String exerciseName, String exerciseDescription, ExerciseStatus exerciseStatus, Calendar alertDate) {
+public class Exercise {
+
+    private String exerciseName, exerciseDescription, ExerciseID;
+    private ExerciseStatus exerciseStatus;
+
+
+    public Exercise() {
+    }
+
+    public Exercise(String exerciseName, String exerciseDescription, ExerciseStatus exerciseStatus) {
         this.exerciseName = exerciseName;
         this.exerciseDescription = exerciseDescription;
         this.exerciseStatus = exerciseStatus;
-        this.alertDate = alertDate;
+
     }
 
     public String getExerciseName() {
@@ -31,29 +35,19 @@ public class Exercise {
         this.exerciseDescription = exerciseDescription;
     }
 
-//    public ExerciseStatus getExerciseStatus() {
-//        return exerciseStatus;
-//    }
+    public ExerciseStatus getExerciseStatus() {
+        return exerciseStatus;
+    }
 
     public void setExerciseStatus(ExerciseStatus exerciseStatus) {
         this.exerciseStatus = exerciseStatus;
     }
 
-    public Calendar getAlertDate() {
-        return alertDate;
+    public String getExerciseID() {
+        return ExerciseID;
     }
 
-    public void setAlertDate(Calendar alertDate) {
-        this.alertDate = alertDate;
-    }
-
-    @Override
-    public String toString() {
-        return "Exercise{" +
-                "exerciseName='" + exerciseName + '\'' +
-                ", exerciseDescription='" + exerciseDescription + '\'' +
-                ", exerciseStatus=" + exerciseStatus +
-                ", alertDate=" + alertDate +
-                '}';
+    public void setExerciseID(String exerciseID) {
+        ExerciseID = exerciseID;
     }
 }

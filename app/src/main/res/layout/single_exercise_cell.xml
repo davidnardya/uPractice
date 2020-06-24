@@ -27,6 +27,7 @@
             />
 
         <View
+            android:id="@+id/exercise_status_single_cell"
             android:layout_width="80dp"
             android:layout_height="match_parent"
             app:layout_constraintTop_toTopOf="parent"

@@ -5,20 +5,20 @@ public enum ExerciseStatus {
 
     public static ExerciseStatus getExerciseStatus(int input){
 
-        ExerciseStatus exerciseStatus;;
+        ExerciseStatus exerciseStatus;
 
         switch (input){
             case 0:
-                exerciseStatus = NOT_STARTED;
+                exerciseStatus = ExerciseStatus.NOT_STARTED;
                 break;
             case 1:
-                exerciseStatus = IN_PROGRESS;
+                exerciseStatus = ExerciseStatus.IN_PROGRESS;
                 break;
             case 2:
-                exerciseStatus = COMPLETED;
+                exerciseStatus = ExerciseStatus.COMPLETED;
                 break;
             default:
-                exerciseStatus = UNKNOWN;
+                exerciseStatus = ExerciseStatus.UNKNOWN;
                 break;
         }
         return exerciseStatus;

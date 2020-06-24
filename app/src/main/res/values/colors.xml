@@ -3,4 +3,8 @@
     <color name="colorPrimary">#1840A3</color>
     <color name="colorPrimaryDark">#005FB3</color>
     <color name="colorAccent">#038FDA</color>
+
+    <color name="exerciseStatusNotStarted">#D61916</color>
+    <color name="exerciseStatusInProgress">#F6F940</color>
+    <color name="exerciseStatusCompleted">#47EA60</color>
 </resources>
