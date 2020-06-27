@@ -3,23 +3,21 @@ package com.davidnardya.upractice.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.davidnardya.upractice.R;
+import com.davidnardya.upractice.adapters.MainFirestoreAdapter;
 import com.davidnardya.upractice.pojo.Plan;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -27,28 +25,23 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.Collection;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainFirestoreAdapter.OnPlanClick {
 
     private RecyclerView plansRecyclerView;
-    private FirestoreRecyclerAdapter adapter;
+    private MainFirestoreAdapter adapter;
     private FloatingActionButton addNewActivityFab;
-
-
-    //On click in the recycler view you get to the next activity
+    public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
 
 
     private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
 
     private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-    private static String planID;
     private CollectionReference plansCollection = dataBase.collection("Users").document(userID).collection("Plans");
-//    private DocumentReference specificPlanDocument = dataBase.collection("Users").document(userID).collection("Plans").document(planID);
 
     private Button logOutBtn;
     private TextView userNameDisplay;
@@ -68,23 +61,15 @@ public class MainActivity extends AppCompatActivity {
 
         Query query = plansCollection;
 
-        FirestoreRecyclerOptions<Plan> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Plan>()
-                .setQuery(query, Plan.class).build();
-        adapter = new FirestoreRecyclerAdapter<Plan, PlanViewHolder>(firestoreRecyclerOptions) {
-            @NonNull
-            @Override
-            public PlanViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_plan_cell, parent, false);
-                return new PlanViewHolder(view);
-            }
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setInitialLoadSizeHint(5)
+                .setPageSize(5)
+                .build();
 
-            @Override
-            protected void onBindViewHolder(@NonNull PlanViewHolder holder, int position, @NonNull Plan model) {
-                holder.planName.setText(model.getPlanName());
-                holder.progressBar.setProgress(50);
-                //planID = model.getPlanID();
-            }
-        };
+        FirestorePagingOptions<Plan> firestoreRecyclerOptions = new FirestorePagingOptions.Builder<Plan>()
+                .setQuery(query, config, Plan.class).build();
+
+        adapter = new MainFirestoreAdapter(firestoreRecyclerOptions, this);
 
         plansCollection.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
@@ -100,9 +85,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
             }
         });
-
-        //On click in the recycler view you get to the next activity
-
 
         //logout click listener
         logOutBtn.setOnClickListener(new View.OnClickListener() {
@@ -128,25 +110,6 @@ public class MainActivity extends AppCompatActivity {
         welcomeText = "Welcome, " + signInAccount.getDisplayName();
         userNameDisplay.setText(welcomeText);
 
-
-
-
-
-
-    }
-
-    private class PlanViewHolder extends RecyclerView.ViewHolder {
-
-        private TextView planName;
-        private ProgressBar progressBar;
-
-        public PlanViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            planName = itemView.findViewById(R.id.single_cell_plan_name_text_view);
-            progressBar = itemView.findViewById(R.id.plan_progress_bar);
-
-        }
     }
 
     @Override
@@ -162,4 +125,11 @@ public class MainActivity extends AppCompatActivity {
         adapter.stopListening();
     }
 
+    @Override
+    public void onPlanClick(DocumentSnapshot snapshot, int position) {
+        Intent intent = new Intent(MainActivity.this, ViewPlanActivity.class);
+        String planID = snapshot.getId();
+        intent.putExtra(EXTRA_PLAN_ID, planID);
+        startActivity(intent);
+    }
 }
