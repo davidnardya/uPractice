@@ -25,7 +25,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
     String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     DocumentSnapshot documentSnapshot;
 
-//    private List<Plan> planList;
     private OnPlanClickListener mListener;
 
     //On click in the recycler view you get to the next activity

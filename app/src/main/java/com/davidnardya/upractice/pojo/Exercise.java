@@ -1,5 +1,6 @@
 package com.davidnardya.upractice.pojo;
 
+import java.sql.Timestamp;
 import java.util.Calendar;
 
 
@@ -7,6 +8,7 @@ public class Exercise {
 
     private String exerciseName, exerciseDescription, ExerciseID;
     private ExerciseStatus exerciseStatus;
+//    private Timestamp timestamp;
 
 
     public Exercise() {
@@ -16,7 +18,7 @@ public class Exercise {
         this.exerciseName = exerciseName;
         this.exerciseDescription = exerciseDescription;
         this.exerciseStatus = exerciseStatus;
-
+//        this.timestamp = timestamp;
     }
 
     public String getExerciseName() {
@@ -49,5 +51,24 @@ public class Exercise {
 
     public void setExerciseID(String exerciseID) {
         ExerciseID = exerciseID;
+    }
+
+//    public Timestamp getTimestamp() {
+//        return timestamp;
+//    }
+//
+//    public void setTimestamp(Timestamp timestamp) {
+//        this.timestamp = timestamp;
+//    }
+
+
+    @Override
+    public String toString() {
+        return "Exercise{" +
+                "exerciseName='" + exerciseName + '\'' +
+                ", exerciseDescription='" + exerciseDescription + '\'' +
+                ", ExerciseID='" + ExerciseID + '\'' +
+                ", exerciseStatus=" + exerciseStatus +
+                '}';
     }
 }

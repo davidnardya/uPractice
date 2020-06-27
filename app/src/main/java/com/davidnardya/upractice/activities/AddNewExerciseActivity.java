@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.sql.Timestamp;
 
 
 public class AddNewExerciseActivity extends AppCompatActivity {
@@ -56,12 +57,12 @@ public class AddNewExerciseActivity extends AppCompatActivity {
 
     }
 
-
-
     public void createNewExercise(){
 
         ExerciseName = newExerciseName.getText().toString();
         ExerciseDescription = newExerciseDescription.getText().toString();
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
         Exercise exercise = new Exercise(ExerciseName, ExerciseDescription, exerciseStatus);
         exerciseID = dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises").document().getId();
         exercise.setExerciseID(exerciseID);
@@ -70,4 +71,5 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         Intent intent = new Intent(AddNewExerciseActivity.this, MainActivity.class);
         startActivity(intent);
     }
+
 }

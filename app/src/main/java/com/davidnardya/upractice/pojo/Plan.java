@@ -1,11 +1,13 @@
 package com.davidnardya.upractice.pojo;
 
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class Plan {
 
     private String planName, planDescription, planID;
+//    private Timestamp timestamp;
 
     public Plan() {
     }
@@ -13,6 +15,7 @@ public class Plan {
     public Plan(String planName, String planDescription) {
         this.planName = planName;
         this.planDescription = planDescription;
+//        this.timestamp = timestamp;
     }
 
     public String getPlanName() {
@@ -38,6 +41,14 @@ public class Plan {
     public void setPlanID(String planID) {
         this.planID = planID;
     }
+
+//    public Timestamp getTimestamp() {
+//        return timestamp;
+//    }
+//
+//    public void setTimestamp(Timestamp timestamp) {
+//        this.timestamp = timestamp;
+//    }
 
     @Override
     public String toString() {

@@ -16,6 +16,8 @@ import com.google.firebase.firestore.DocumentReference;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.sql.Timestamp;
+
 
 public class AddNewPlanActivity extends AppCompatActivity {
 
@@ -30,8 +32,6 @@ public class AddNewPlanActivity extends AppCompatActivity {
     String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
     DocumentReference planRef = dataBase.collection("Users").document(userID).collection("Plans").document();
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +54,7 @@ public class AddNewPlanActivity extends AppCompatActivity {
     public void createPlanInDataBase(){
             planName = newPlanName.getText().toString();
             planDescription = newPlanDescription.getText().toString();
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             Plan plan = new Plan(planName, planDescription);
             plan.setPlanID(planRef.getId());
             planID = plan.getPlanID();
@@ -69,4 +70,5 @@ public class AddNewPlanActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_PLAN_ID, planID);
         startActivity(intent);
     }
+
 }
