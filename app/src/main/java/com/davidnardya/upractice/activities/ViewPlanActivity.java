@@ -16,14 +16,19 @@ import com.davidnardya.upractice.adapters.PlanFirestoreAdapter;
 import com.davidnardya.upractice.pojo.Exercise;
 import com.davidnardya.upractice.pojo.Plan;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.w3c.dom.Document;
 
 public class ViewPlanActivity extends AppCompatActivity implements PlanFirestoreAdapter.OnExerciseClick {
 
@@ -45,17 +50,31 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
 
         Intent intent = getIntent();
         planID = intent.getStringExtra(MainActivity.EXTRA_PLAN_ID);
-        exercisesCollection = dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises");
-
 
         exercisesRecyclerView = findViewById(R.id.exercises_recycler_view);
         planName = findViewById(R.id.plan_details_plan_name_text_view);
-        planName.setText(planID);
+
+        exercisesCollection = dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises");
+
+        //To get the parent's plan name
+        DocumentReference nameRef = dataBase.collection("Users").document(userID).collection("Plans").document(planID);
+        nameRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                DocumentSnapshot document = task.getResult();
+                if (document != null){
+                    planName.setText(document.getString("planName"));
+                } else {
+                    Toast.makeText(ViewPlanActivity.this, "Name is null!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
 
         Query query = exercisesCollection;
 
         PagedList.Config config = new PagedList.Config.Builder()
-                .setInitialLoadSizeHint(5)
+                .setInitialLoadSizeHint(10)
                 .setPageSize(5)
                 .build();
 

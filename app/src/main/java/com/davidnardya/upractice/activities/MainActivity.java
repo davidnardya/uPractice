@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
     private MainFirestoreAdapter adapter;
     private FloatingActionButton addNewActivityFab;
     public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
+    public static final String EXTRA_SPECIFIC_PLAN_NAME = "com.davidnardya.upractice.activities.EXTRA_SPECIFIC_PLAN_NAME";
 
 
     private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
