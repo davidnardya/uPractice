@@ -14,7 +14,6 @@ import android.widget.Toast;
 import com.davidnardya.upractice.R;
 import com.davidnardya.upractice.adapters.PlanFirestoreAdapter;
 import com.davidnardya.upractice.pojo.Exercise;
-import com.davidnardya.upractice.pojo.Plan;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -32,7 +31,11 @@ import org.w3c.dom.Document;
 
 public class ViewPlanActivity extends AppCompatActivity implements PlanFirestoreAdapter.OnExerciseClick {
 
+    public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
+    public static final String EXTRA_EXERCISE_ID = "com.davidnardya.upractice.activities.EXTRA_EXERCISE_ID";
+
     String planID;
+    String exerciseID;
     private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
 
     private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -55,6 +58,8 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
         planName = findViewById(R.id.plan_details_plan_name_text_view);
 
         exercisesCollection = dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises");
+
+        //exerciseID = exercisesCollection.document().getId();
 
         //To get the parent's plan name
         DocumentReference nameRef = dataBase.collection("Users").document(userID).collection("Plans").document(planID);
@@ -116,7 +121,16 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
     @Override
     public void onExerciseClick(DocumentSnapshot snapshot, int position) {
         Intent intent = new Intent(ViewPlanActivity.this, ViewExerciseActivity.class);
+        intent.putExtra(EXTRA_PLAN_ID, planID);
+        exerciseID = snapshot.getId();
+        intent.putExtra(EXTRA_EXERCISE_ID, exerciseID);
         startActivity(intent);
+    }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(ViewPlanActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

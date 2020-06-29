@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.davidnardya.upractice.R;
@@ -30,6 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
     private static final int RC_SIGN_IN = 1231;
     private FirebaseAuth mAuth;
+    private Button revokeAccessBtn;
 
     @Override
     protected void onStart() {
@@ -47,6 +49,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+
+
         mAuth = FirebaseAuth.getInstance();
 
         signInRequest();
@@ -58,6 +62,14 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        revokeAccessBtn = findViewById(R.id.revoke_access_btn);
+
+        revokeAccessBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                revokeAccess();
+            }
+        });
 
 
     }
@@ -115,6 +127,10 @@ public class LoginActivity extends AppCompatActivity {
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+    }
+
+    public void revokeAccess(){
+        mGoogleSignInClient.revokeAccess();
     }
 
     //Used in the log in button

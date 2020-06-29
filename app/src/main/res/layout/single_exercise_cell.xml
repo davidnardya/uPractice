@@ -18,7 +18,7 @@
             android:id="@+id/single_cell_plan_name_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Exercise Name"
+            tools:text="Exercise Name"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             style="@style/ExerciseTitleFont"

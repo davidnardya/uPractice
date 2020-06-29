@@ -33,7 +33,21 @@ public class PlanFirestoreAdapter extends FirestorePagingAdapter<Exercise, PlanF
     @Override
     protected void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position, @NonNull Exercise model) {
         holder.exerciseName.setText(model.getExerciseName());
-        holder.exerciseStatus.setBackgroundColor(Color.RED);
+
+        switch (model.getExerciseStatus()){
+            case NOT_STARTED:
+                holder.exerciseStatus.setBackgroundResource(R.color.exerciseStatusNotStarted);
+                break;
+            case IN_PROGRESS:
+                holder.exerciseStatus.setBackgroundResource(R.color.exerciseStatusInProgress);
+                break;
+            case COMPLETED:
+                holder.exerciseStatus.setBackgroundResource(R.color.exerciseStatusCompleted);
+                break;
+            default:
+                break;
+        }
+
     }
 
     public class ExerciseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
