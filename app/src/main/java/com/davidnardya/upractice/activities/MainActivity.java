@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
     private MainFirestoreAdapter adapter;
     private FloatingActionButton addNewActivityFab;
     public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
+    String planID;
 
 
     private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
@@ -128,8 +129,10 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
     @Override
     public void onPlanClick(DocumentSnapshot snapshot, int position) {
         Intent intent = new Intent(MainActivity.this, ViewPlanActivity.class);
-        String planID = snapshot.getId();
+        planID = snapshot.getId();
         intent.putExtra(EXTRA_PLAN_ID, planID);
         startActivity(intent);
     }
+
+
 }

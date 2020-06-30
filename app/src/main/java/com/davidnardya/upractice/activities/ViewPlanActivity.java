@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +20,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -44,6 +46,7 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
 
     PlanFirestoreAdapter adapter;
     TextView planName;
+    FloatingActionButton addNewExerciseFab;
 
 
     @Override
@@ -56,6 +59,7 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
 
         exercisesRecyclerView = findViewById(R.id.exercises_recycler_view);
         planName = findViewById(R.id.plan_details_plan_name_text_view);
+        addNewExerciseFab = findViewById(R.id.add_new_exercise_to_plan_page_fab);
 
         exercisesCollection = dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises");
 
@@ -103,6 +107,13 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
             }
         });
 
+        addNewExerciseFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                passDataToNewExerciseActivity();
+            }
+        });
+
     }
 
     @Override
@@ -133,4 +144,13 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
         startActivity(intent);
         finish();
     }
+
+    public void passDataToNewExerciseActivity(){
+
+        Intent intent = new Intent(ViewPlanActivity.this, AddNewExerciseActivity.class);
+        intent.putExtra(EXTRA_PLAN_ID, planID);
+        startActivity(intent);
+    }
+
+
 }
