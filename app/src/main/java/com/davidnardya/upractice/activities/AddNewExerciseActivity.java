@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.davidnardya.upractice.R;
 import com.davidnardya.upractice.pojo.Exercise;
@@ -25,6 +26,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -36,6 +38,8 @@ public class AddNewExerciseActivity extends AppCompatActivity {
     String ExerciseName, ExerciseDescription;
     ExerciseStatus exerciseStatus = ExerciseStatus.NOT_STARTED;
     Button pickTimeButton, pickDateButton;
+
+    Calendar timePicked = Calendar.getInstance();
 
     String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
@@ -80,11 +84,11 @@ public class AddNewExerciseActivity extends AppCompatActivity {
                 TimePickerDialog timePickerDialog = new TimePickerDialog(AddNewExerciseActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        Calendar c = Calendar.getInstance();
-                        c.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        c.set(Calendar.MINUTE, minute);
+                        timePicked = Calendar.getInstance();
+                        timePicked.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        timePicked.set(Calendar.MINUTE, minute);
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-                        String time = simpleDateFormat.format(c.getTime());
+                        String time = simpleDateFormat.format(timePicked.getTime());
                         pickTimeButton.setText(time);
                     }
                 },currentHour,currentMinute,android.text.format.DateFormat.is24HourFormat(AddNewExerciseActivity.this));
@@ -98,17 +102,17 @@ public class AddNewExerciseActivity extends AppCompatActivity {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(AddNewExerciseActivity.this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        Calendar c = Calendar.getInstance();
-                        c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        c.set(Calendar.MONTH, month);
-                        c.set(Calendar.YEAR, year);
-                        String date = DateFormat.getDateInstance(DateFormat.FULL).format(c.getTime());
+                        timePicked.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                        timePicked.set(Calendar.MONTH, month);
+                        timePicked.set(Calendar.YEAR, year);
+                        String date = DateFormat.getDateInstance(DateFormat.FULL).format(timePicked.getTime());
                         pickDateButton.setText(date);
                     }
                 },currentYear,currentMonth,currentDay);
                 datePickerDialog.show();
             }
         });
+
 
     }
 
@@ -117,8 +121,14 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         ExerciseName = newExerciseName.getText().toString();
         ExerciseDescription = newExerciseDescription.getText().toString();
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        Date exerciseDate = timePicked.getTime();
 
-        Exercise exercise = new Exercise(ExerciseName, ExerciseDescription, exerciseStatus);
+//        SimpleDateFormat finalDate = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+//        String exerciseTime = finalDate.format(exerciseDate.getTime());
+//
+//        Toast.makeText(this, exerciseTime, Toast.LENGTH_SHORT).show();
+
+        Exercise exercise = new Exercise(ExerciseName, ExerciseDescription, exerciseStatus, exerciseDate);
         exerciseID = dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises").document().getId();
         exercise.setExerciseID(exerciseID);
         dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises").document(exerciseID).set(exercise);

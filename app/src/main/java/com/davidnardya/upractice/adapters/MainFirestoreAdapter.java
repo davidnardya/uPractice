@@ -76,7 +76,13 @@ public class MainFirestoreAdapter extends FirestorePagingAdapter<Plan, MainFires
                     }
                 }
 
-                int progress = completedExercises * 100 / allExercises;
+                int progress;
+                if(allExercises != 0){
+                    progress = completedExercises * 100 / allExercises;
+                } else {
+                    progress = 0;
+                }
+
                 holder.planName.setText(model.getPlanName());
                 holder.progressBar.setProgress(progress);
             }
