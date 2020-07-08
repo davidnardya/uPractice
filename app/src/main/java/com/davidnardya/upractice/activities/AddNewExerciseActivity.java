@@ -2,8 +2,12 @@ package com.davidnardya.upractice.activities;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import android.app.DatePickerDialog;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +20,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.davidnardya.upractice.R;
+import com.davidnardya.upractice.notifications.App;
 import com.davidnardya.upractice.pojo.Exercise;
 import com.davidnardya.upractice.pojo.ExerciseStatus;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -49,6 +54,10 @@ public class AddNewExerciseActivity extends AppCompatActivity {
 
     String planName, planDescription, planID;
 
+    private NotificationManagerCompat notificationManager;
+    public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
+    public static final String EXTRA_EXERCISE_ID = "com.davidnardya.upractice.activities.EXTRA_EXERCISE_ID";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +78,7 @@ public class AddNewExerciseActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 createNewExercise();
+                sendCustomNotification();
             }
         });
 
@@ -113,6 +123,7 @@ public class AddNewExerciseActivity extends AppCompatActivity {
             }
         });
 
+        notificationManager = NotificationManagerCompat.from(this);
 
     }
 
@@ -137,4 +148,46 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-}
+    public void sendCustomNotification(){
+        String notificationTitle = "This is a reminder for your " + newExerciseName.getText().toString() + " exercise!";
+        String notificationText = "Click to view your exercise!";
+
+        Intent intent = new Intent(this, ViewExerciseActivity.class);
+        intent.putExtra(EXTRA_PLAN_ID, planID);
+        intent.putExtra(EXTRA_EXERCISE_ID, exerciseID);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        Notification notification = new NotificationCompat.Builder(this, App.CUSTOM_NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_alarm_24)
+                .setContentTitle(notificationTitle)
+                .setContentText(notificationText)
+                .setContentIntent(contentIntent)
+                .build();
+
+        notificationManager.notify(1, notification);
+    }
+
+    public void sendDailyNotification(){
+        String notificationTitle = "This is a reminder for your " + newExerciseName.getText().toString() + " exercise!";
+        String notificationText = "Click to view your exercise!";
+
+        Intent intent = new Intent(this, ViewExerciseActivity.class);
+        intent.putExtra(EXTRA_PLAN_ID, planID);
+        intent.putExtra(EXTRA_EXERCISE_ID, exerciseID);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        Notification notification = new NotificationCompat.Builder(this, App.DAILY_NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_alarm_24)
+                .setContentTitle(notificationTitle)
+                .setContentText(notificationText)
+                .setContentIntent(contentIntent)
+                .build();
+
+        notificationManager.notify(2, notification);
+    }
+
+
+
+    }

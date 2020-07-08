@@ -54,8 +54,14 @@ public class ViewExerciseActivity extends AppCompatActivity {
         rbCompleted = findViewById(R.id.rb_completed);
 
         Intent intent = getIntent();
-        planID = intent.getStringExtra(ViewPlanActivity.EXTRA_PLAN_ID);
-        exerciseID = intent.getStringExtra(ViewPlanActivity.EXTRA_EXERCISE_ID);
+        if(intent.getStringExtra(ViewPlanActivity.EXTRA_PLAN_ID) != null){
+            planID = intent.getStringExtra(ViewPlanActivity.EXTRA_PLAN_ID);
+            exerciseID = intent.getStringExtra(ViewPlanActivity.EXTRA_EXERCISE_ID);
+        } else {
+            planID = intent.getStringExtra(AddNewExerciseActivity.EXTRA_PLAN_ID);
+            exerciseID = intent.getStringExtra(AddNewExerciseActivity.EXTRA_EXERCISE_ID);
+        }
+
 
         //To get the exercise's details
         exerciseRef = dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises").document(exerciseID);
