@@ -5,6 +5,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 
+import com.facebook.stetho.Stetho;
+
 public class App extends Application {
 
     public static final String CUSTOM_NOTIFICATION_CHANNEL_ID = "customNotificationChannelId";
@@ -14,6 +16,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
+        Stetho.initializeWithDefaults(this);
          createNotificationChannels();
     }
 

@@ -20,6 +20,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.davidnardya.upractice.R;
+import com.davidnardya.upractice.db.AppDB;
 import com.davidnardya.upractice.notifications.App;
 import com.davidnardya.upractice.pojo.Exercise;
 import com.davidnardya.upractice.pojo.ExerciseStatus;
@@ -131,7 +132,6 @@ public class AddNewExerciseActivity extends AppCompatActivity {
 
         ExerciseName = newExerciseName.getText().toString();
         ExerciseDescription = newExerciseDescription.getText().toString();
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         Date exerciseDate = timePicked.getTime();
 
 //        SimpleDateFormat finalDate = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -143,6 +143,8 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         exerciseID = dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises").document().getId();
         exercise.setExerciseID(exerciseID);
         dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises").document(exerciseID).set(exercise);
+
+        AppDB.getInstance(getApplicationContext()).entitiesDao().insertExercise(exercise);
 
         Intent intent = new Intent(AddNewExerciseActivity.this, MainActivity.class);
         startActivity(intent);

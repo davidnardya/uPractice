@@ -1,27 +1,39 @@
 package com.davidnardya.upractice.pojo;
 
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
-
+@Entity
 public class Exercise {
 
+    @PrimaryKey(autoGenerate = true)
+    public int id = 0;
     private String exerciseName, exerciseDescription, ExerciseID;
+    @Ignore
     private ExerciseStatus exerciseStatus;
     private Date exerciseAlertDate;
-//    private Timestamp timestamp;
 
-
+    @Ignore
     public Exercise() {
     }
 
+    @Ignore
     public Exercise(String exerciseName, String exerciseDescription, ExerciseStatus exerciseStatus, Date exerciseAlertDate) {
         this.exerciseName = exerciseName;
         this.exerciseDescription = exerciseDescription;
         this.exerciseStatus = exerciseStatus;
         this.exerciseAlertDate = exerciseAlertDate;
-//        this.timestamp = timestamp;
+    }
+
+    public Exercise(String exerciseName, String exerciseDescription, Date exerciseAlertDate) {
+        this.exerciseName = exerciseName;
+        this.exerciseDescription = exerciseDescription;
+        this.exerciseAlertDate = exerciseAlertDate;
     }
 
     public String getExerciseName() {
@@ -55,14 +67,6 @@ public class Exercise {
     public void setExerciseID(String exerciseID) {
         ExerciseID = exerciseID;
     }
-
-//    public Timestamp getTimestamp() {
-//        return timestamp;
-//    }
-//
-//    public void setTimestamp(Timestamp timestamp) {
-//        this.timestamp = timestamp;
-//    }
 
 
     public Date getExerciseAlertDate() {

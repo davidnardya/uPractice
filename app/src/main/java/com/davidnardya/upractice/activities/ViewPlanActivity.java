@@ -3,6 +3,7 @@ package com.davidnardya.upractice.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.paging.PagedList;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,7 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.davidnardya.upractice.R;
+import com.davidnardya.upractice.adapters.PlanDeletionDialog;
 import com.davidnardya.upractice.adapters.PlanFirestoreAdapter;
+import com.davidnardya.upractice.db.AppDB;
 import com.davidnardya.upractice.pojo.Exercise;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -28,8 +31,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-
-import org.w3c.dom.Document;
 
 public class ViewPlanActivity extends AppCompatActivity implements PlanFirestoreAdapter.OnExerciseClick {
 
@@ -47,6 +48,8 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
     PlanFirestoreAdapter adapter;
     TextView planName;
     FloatingActionButton addNewExerciseFab;
+
+    boolean planIsForDeletion = false;
 
 
     @Override
@@ -114,7 +117,54 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
             }
         });
 
+        //Delete exercise
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
+                exercisesCollection.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+
+                        String id = queryDocumentSnapshots.getDocuments().get(viewHolder.getAdapterPosition()).getId();
+                        int collectionCount = queryDocumentSnapshots.getDocuments().size();
+
+                        if(collectionCount > 1){
+                            Exercise exerciseNameToDelete = queryDocumentSnapshots.getDocuments().get(viewHolder.getAdapterPosition()).toObject(Exercise.class);
+                            exercisesCollection.document(id).delete();
+                            AppDB.getInstance(getApplicationContext()).entitiesDao().deleteExercise(exerciseNameToDelete.getExerciseID());
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            openDeletePlanDialog();
+
+                            boolean delete = planIsForDeletion;
+                            if(delete){
+                                Exercise exerciseNameToDelete = queryDocumentSnapshots.getDocuments().get(viewHolder.getAdapterPosition()).toObject(Exercise.class);
+                                //exercisesCollection.document(id).delete();
+                                dataBase.collection("Users").document(userID).collection("Plans").document(planID).delete();
+                                openDeletePlanDialog();
+                                AppDB.getInstance(getApplicationContext()).entitiesDao().deleteExercise(exerciseNameToDelete.getExerciseID());
+                                adapter.notifyDataSetChanged();
+                                Intent intent = new Intent(ViewPlanActivity.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+                    }
+                });
+            }
+        }).attachToRecyclerView(exercisesRecyclerView);
+
     }
+
+
 
     @Override
     protected void onStart() {
@@ -152,5 +202,12 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
         startActivity(intent);
     }
 
+    public void openDeletePlanDialog(){
+        PlanDeletionDialog planDeletionDialog = new PlanDeletionDialog();
+        planDeletionDialog.show(getSupportFragmentManager(), "Deletion Dialog");
+    }
 
+    public static boolean deletePlan(boolean yesOrNo){
+        return yesOrNo;
+    }
 }
