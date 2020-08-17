@@ -13,6 +13,10 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import com.davidnardya.upractice.activities.ViewPlanActivity;
 
 public class PlanDeletionDialog extends AppCompatDialogFragment {
+
+    private boolean deletePlan = false;
+    private PlanDeletionListener planDeletionListener;
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -23,14 +27,29 @@ public class PlanDeletionDialog extends AppCompatDialogFragment {
                 .setPositiveButton("OK, Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ViewPlanActivity.deletePlan(true);
+                        deletePlan = true;
+                        planDeletionListener.deletePlanInterfaceMethod(deletePlan);
                     }
                 }).setNegativeButton("Do not delete", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
             }
         });
         return builder.create();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        try {
+            planDeletionListener = (PlanDeletionListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + "Must implement PlanDeletionListener");
+        }
+    }
+
+    public interface PlanDeletionListener{
+        void deletePlanInterfaceMethod(boolean ifTrueDeletePlan);
     }
 }

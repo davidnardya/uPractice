@@ -107,11 +107,14 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         String userID = FirebaseAuth.getInstance().getUid();
-                        FirebaseFirestore.getInstance().collection("Users").document(userID).collection("Plans").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        FirebaseFirestore.getInstance().collection("Users")
+                                .document(userID).collection("Plans").get()
+                                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                             @Override
                             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                                 QuerySnapshot querySnapshot = queryDocumentSnapshots;
-                                AppDB.getInstance(getApplicationContext()).entitiesDao().insertExercises(queryDocumentSnapshots.toObjects(Exercise.class));
+                                AppDB.getInstance(getApplicationContext()).entitiesDao()
+                                        .insertExercises(queryDocumentSnapshots.toObjects(Exercise.class));
                             }
                         });
 

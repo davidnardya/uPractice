@@ -32,7 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
-public class ViewPlanActivity extends AppCompatActivity implements PlanFirestoreAdapter.OnExerciseClick {
+public class ViewPlanActivity extends AppCompatActivity implements PlanFirestoreAdapter.OnExerciseClick, PlanDeletionDialog.PlanDeletionListener {
 
     public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
     public static final String EXTRA_EXERCISE_ID = "com.davidnardya.upractice.activities.EXTRA_EXERCISE_ID";
@@ -49,8 +49,7 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
     TextView planName;
     FloatingActionButton addNewExerciseFab;
 
-    boolean planIsForDeletion = false;
-
+    private boolean deletePlan = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,27 +134,37 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
                         int collectionCount = queryDocumentSnapshots.getDocuments().size();
 
                         if(collectionCount > 1){
-                            Exercise exerciseNameToDelete = queryDocumentSnapshots.getDocuments().get(viewHolder.getAdapterPosition()).toObject(Exercise.class);
+                            Exercise exerciseNameToDelete = queryDocumentSnapshots.getDocuments()
+                                    .get(viewHolder.getAdapterPosition()).toObject(Exercise.class);
                             exercisesCollection.document(id).delete();
                             AppDB.getInstance(getApplicationContext()).entitiesDao().deleteExercise(exerciseNameToDelete.getExerciseID());
                             adapter.notifyDataSetChanged();
-                        } else {
+                            Intent intent = new Intent(ViewPlanActivity.this, ViewPlanActivity.class);
+                            intent.putExtra(EXTRA_PLAN_ID, planID);
+                            startActivity(intent);
+                            finish();
+
+                        } else if (collectionCount == 1){
                             openDeletePlanDialog();
 
-                            boolean delete = planIsForDeletion;
-                            if(delete){
-                                Exercise exerciseNameToDelete = queryDocumentSnapshots.getDocuments().get(viewHolder.getAdapterPosition()).toObject(Exercise.class);
-                                //exercisesCollection.document(id).delete();
-                                dataBase.collection("Users").document(userID).collection("Plans").document(planID).delete();
-                                openDeletePlanDialog();
-                                AppDB.getInstance(getApplicationContext()).entitiesDao().deleteExercise(exerciseNameToDelete.getExerciseID());
-                                adapter.notifyDataSetChanged();
+                            if (deletePlan){
+                                Exercise exerciseNameToDelete = queryDocumentSnapshots
+                                        .getDocuments().get(viewHolder.getAdapterPosition())
+                                        .toObject(Exercise.class);
+                                exercisesCollection.document(id).delete();
+                                AppDB.getInstance(getApplicationContext()).entitiesDao()
+                                        .deleteExercise(exerciseNameToDelete.getExerciseID());
+                                dataBase.collection("Users").document(userID)
+                                        .collection("Plans").document(planID).delete();
                                 Intent intent = new Intent(ViewPlanActivity.this, MainActivity.class);
                                 startActivity(intent);
                                 finish();
+
                             } else {
                                 adapter.notifyDataSetChanged();
                             }
+
+
                         }
                     }
                 });
@@ -207,7 +216,11 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
         planDeletionDialog.show(getSupportFragmentManager(), "Deletion Dialog");
     }
 
-    public static boolean deletePlan(boolean yesOrNo){
-        return yesOrNo;
+
+    @Override
+    public void deletePlanInterfaceMethod(boolean ifTrueDeletePlan) {
+        deletePlan = ifTrueDeletePlan;
     }
+
+
 }
