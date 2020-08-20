@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.davidnardya.upractice.R;
 import com.davidnardya.upractice.adapters.PlanFirestoreAdapter;
+import com.davidnardya.upractice.notifications.NotificationService;
 import com.davidnardya.upractice.pojo.Exercise;
 import com.davidnardya.upractice.pojo.ExerciseStatus;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -57,14 +58,19 @@ public class ViewExerciseActivity extends AppCompatActivity {
         if(intent.getStringExtra(ViewPlanActivity.EXTRA_PLAN_ID) != null){
             planID = intent.getStringExtra(ViewPlanActivity.EXTRA_PLAN_ID);
             exerciseID = intent.getStringExtra(ViewPlanActivity.EXTRA_EXERCISE_ID);
-        } else {
+        } else if (intent.getStringExtra(AddNewExerciseActivity.EXTRA_PLAN_ID) != null){
             planID = intent.getStringExtra(AddNewExerciseActivity.EXTRA_PLAN_ID);
             exerciseID = intent.getStringExtra(AddNewExerciseActivity.EXTRA_EXERCISE_ID);
+        } else {
+            planID = intent.getStringExtra(NotificationService.EXTRA_PLAN_ID);
+            exerciseID = intent.getStringExtra(NotificationService.EXTRA_EXERCISE_ID);
         }
 
 
         //To get the exercise's details
-        exerciseRef = dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises").document(exerciseID);
+        exerciseRef = dataBase.collection("Users").document(userID)
+                .collection("Plans").document(planID)
+                .collection("Exercises").document(exerciseID);
         exerciseRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -87,7 +93,6 @@ public class ViewExerciseActivity extends AppCompatActivity {
                             rbNotStarted.setChecked(true);
                             break;
                     }
-
                 } else {
                     Toast.makeText(ViewExerciseActivity.this, "Name is null!", Toast.LENGTH_SHORT).show();
                 }
