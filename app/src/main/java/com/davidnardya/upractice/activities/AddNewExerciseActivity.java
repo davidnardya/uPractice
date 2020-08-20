@@ -1,10 +1,11 @@
 package com.davidnardya.upractice.activities;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -17,11 +18,12 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.davidnardya.upractice.R;
 import com.davidnardya.upractice.db.AppDB;
+import com.davidnardya.upractice.notifications.AlarmReceiver;
 import com.davidnardya.upractice.notifications.App;
+import com.davidnardya.upractice.notifications.NotificationService;
 import com.davidnardya.upractice.pojo.Exercise;
 import com.davidnardya.upractice.pojo.ExerciseStatus;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -29,10 +31,8 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -55,9 +55,10 @@ public class AddNewExerciseActivity extends AppCompatActivity {
 
     String planName, planDescription, planID;
 
-    private NotificationManagerCompat notificationManager;
     public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
     public static final String EXTRA_EXERCISE_ID = "com.davidnardya.upractice.activities.EXTRA_EXERCISE_ID";
+    public static final String EXTRA_NOTIFICATION_TITLE = "com.davidnardya.upractice.activities.EXTRA_NOTIFICATION_TITLE";
+    public static final String EXTRA_NOTIFICATION_TEXT = "com.davidnardya.upractice.activities.EXTRA_NOTIFICATION_TEXT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +80,6 @@ public class AddNewExerciseActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 createNewExercise();
-                sendCustomNotification();
             }
         });
 
@@ -92,12 +92,14 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         pickTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(AddNewExerciseActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(AddNewExerciseActivity.this,
+                        new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         timePicked = Calendar.getInstance();
                         timePicked.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         timePicked.set(Calendar.MINUTE, minute);
+                        timePicked.set(Calendar.SECOND, 0);
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
                         String time = simpleDateFormat.format(timePicked.getTime());
                         pickTimeButton.setText(time);
@@ -110,7 +112,8 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         pickDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePickerDialog datePickerDialog = new DatePickerDialog(AddNewExerciseActivity.this, new DatePickerDialog.OnDateSetListener() {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(AddNewExerciseActivity.this,
+                        new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         timePicked.set(Calendar.DAY_OF_MONTH, dayOfMonth);
@@ -124,7 +127,11 @@ public class AddNewExerciseActivity extends AppCompatActivity {
             }
         });
 
-        notificationManager = NotificationManagerCompat.from(this);
+//        notificationManager = NotificationManagerCompat.from(this);
+
+        //Notification for exercise
+
+
 
     }
 
@@ -134,62 +141,64 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         ExerciseDescription = newExerciseDescription.getText().toString();
         Date exerciseDate = timePicked.getTime();
 
-//        SimpleDateFormat finalDate = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-//        String exerciseTime = finalDate.format(exerciseDate.getTime());
-//
-//        Toast.makeText(this, exerciseTime, Toast.LENGTH_SHORT).show();
-
         Exercise exercise = new Exercise(ExerciseName, ExerciseDescription, exerciseStatus, exerciseDate);
-        exerciseID = dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises").document().getId();
+        exerciseID = dataBase.collection("Users")
+                .document(userID).collection("Plans")
+                .document(planID).collection("Exercises").document().getId();
         exercise.setExerciseID(exerciseID);
-        dataBase.collection("Users").document(userID).collection("Plans").document(planID).collection("Exercises").document(exerciseID).set(exercise);
+        dataBase.collection("Users").document(userID)
+                .collection("Plans").document(planID)
+                .collection("Exercises").document(exerciseID).set(exercise);
 
         AppDB.getInstance(getApplicationContext()).entitiesDao().insertExercise(exercise);
+
+        startAlarm(timePicked);
 
         Intent intent = new Intent(AddNewExerciseActivity.this, MainActivity.class);
         startActivity(intent);
     }
 
-    public void sendCustomNotification(){
+    private void startAlarm(Calendar timePicked) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
         String notificationTitle = "This is a reminder for your " + newExerciseName.getText().toString() + " exercise!";
         String notificationText = "Click to view your exercise!";
 
-        Intent intent = new Intent(this, ViewExerciseActivity.class);
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        intent.putExtra(EXTRA_NOTIFICATION_TITLE, notificationTitle);
+        intent.putExtra(EXTRA_NOTIFICATION_TEXT, notificationText);
         intent.putExtra(EXTRA_PLAN_ID, planID);
         intent.putExtra(EXTRA_EXERCISE_ID, exerciseID);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
 
-        Notification notification = new NotificationCompat.Builder(this, App.CUSTOM_NOTIFICATION_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_alarm_24)
-                .setContentTitle(notificationTitle)
-                .setContentText(notificationText)
-                .setContentIntent(contentIntent)
-                .build();
-
-        notificationManager.notify(1, notification);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, timePicked.getTimeInMillis(), pendingIntent);
     }
 
-    public void sendDailyNotification(){
+    private void cancelAlarm(){
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
+
+        alarmManager.cancel(pendingIntent);
+    }
+
+    public void startService(){
+
         String notificationTitle = "This is a reminder for your " + newExerciseName.getText().toString() + " exercise!";
         String notificationText = "Click to view your exercise!";
 
-        Intent intent = new Intent(this, ViewExerciseActivity.class);
-        intent.putExtra(EXTRA_PLAN_ID, planID);
-        intent.putExtra(EXTRA_EXERCISE_ID, exerciseID);
-
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        Notification notification = new NotificationCompat.Builder(this, App.DAILY_NOTIFICATION_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_alarm_24)
-                .setContentTitle(notificationTitle)
-                .setContentText(notificationText)
-                .setContentIntent(contentIntent)
-                .build();
-
-        notificationManager.notify(2, notification);
+        Intent notificationServiceIntent = new Intent(this, NotificationService.class);
+        notificationServiceIntent.putExtra(EXTRA_NOTIFICATION_TITLE, notificationTitle);
+        notificationServiceIntent.putExtra(EXTRA_NOTIFICATION_TEXT, notificationText);
+        notificationServiceIntent.putExtra(EXTRA_PLAN_ID, planID);
+        notificationServiceIntent.putExtra(EXTRA_EXERCISE_ID, exerciseID);
+        ContextCompat.startForegroundService(this, notificationServiceIntent);
     }
 
-
+    public void stopService(){
+        Intent notificationServiceIntent = new Intent(this, NotificationService.class);
+        stopService(notificationServiceIntent);
+    }
 
     }

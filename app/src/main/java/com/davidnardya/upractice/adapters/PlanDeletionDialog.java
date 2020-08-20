@@ -15,10 +15,16 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import com.davidnardya.upractice.activities.MainActivity;
 import com.davidnardya.upractice.activities.ViewPlanActivity;
 import com.davidnardya.upractice.db.AppDB;
+import com.davidnardya.upractice.pojo.Exercise;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.List;
 
 public class PlanDeletionDialog extends AppCompatDialogFragment {
 
@@ -48,18 +54,23 @@ public class PlanDeletionDialog extends AppCompatDialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        AppDB.getInstance(getActivity()).entitiesDao().deleteExercise(exerciseID);
-
                         DocumentReference planToDelete = dataBase.collection("Users")
                                 .document(userID).collection("Plans").document(planID);
-                        DocumentReference exerciseToDelete = planToDelete
-                                .collection("Exercises").document(exerciseID);
-                        exerciseToDelete.delete();
+                        final CollectionReference exerciseToDelete = planToDelete
+                                .collection("Exercises");
+                        exerciseToDelete.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                            @Override
+                            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                List<Exercise> listToDelete = queryDocumentSnapshots.toObjects(Exercise.class);
+                                if(listToDelete.size() == 1){
+                                    AppDB.getInstance(getActivity()).entitiesDao()
+                                            .deleteExercise(listToDelete.get(0).getExerciseID());
+                                    exerciseToDelete.document(listToDelete.get(0).getExerciseID()).delete();
+                                }
+                            }
+                        });
+
                         planToDelete.delete();
-
-
-//                        deletePlan = true;
-//                        planDeletionListener.deletePlanInterfaceMethod(deletePlan);
 
                         Intent intent = new Intent(getActivity(), MainActivity.class);
                         startActivity(intent);

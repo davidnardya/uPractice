@@ -15,7 +15,7 @@ public class Exercise {
     public int id = 0;
     private String exerciseName, exerciseDescription, ExerciseID;
     @Ignore
-    private ExerciseStatus exerciseStatus;
+    private ExerciseStatus exerciseStatus = ExerciseStatus.NOT_STARTED;
     private Date exerciseAlertDate;
 
     @Ignore
