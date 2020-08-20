@@ -21,6 +21,7 @@ public class NotificationService extends Service {
     public static final String EXTRA_NOTIFICATION_TEXT = "com.davidnardya.upractice.activities.EXTRA_NOTIFICATION_TEXT";
     String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     String planID, exerciseID;
+    int pendingIntentRequestCode;
 
 
     @Override
@@ -36,11 +37,14 @@ public class NotificationService extends Service {
         planID = intent.getStringExtra(EXTRA_PLAN_ID);
         exerciseID = intent.getStringExtra(EXTRA_EXERCISE_ID);
 
+        pendingIntentRequestCode = Integer.parseInt(exerciseID.replaceAll("[^0-9]", ""));
+
         Intent notificationIntent = new Intent(this, ViewExerciseActivity.class);
         intent.putExtra(EXTRA_PLAN_ID, planID);
         intent.putExtra(EXTRA_EXERCISE_ID, exerciseID);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, pendingIntentRequestCode, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
 
         Notification notification = new NotificationCompat.Builder(this, App.DAILY_NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_alarm_24)
