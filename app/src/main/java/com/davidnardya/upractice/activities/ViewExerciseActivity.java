@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.davidnardya.upractice.R;
 import com.davidnardya.upractice.adapters.PlanFirestoreAdapter;
+import com.davidnardya.upractice.notifications.AlarmReceiver;
 import com.davidnardya.upractice.notifications.NotificationService;
 import com.davidnardya.upractice.pojo.Exercise;
 import com.davidnardya.upractice.pojo.ExerciseStatus;
@@ -22,6 +23,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import static com.davidnardya.upractice.notifications.NotificationService.EXTRA_EXERCISE_ID;
+import static com.davidnardya.upractice.notifications.NotificationService.EXTRA_PLAN_ID;
 
 public class ViewExerciseActivity extends AppCompatActivity {
 
@@ -62,8 +66,8 @@ public class ViewExerciseActivity extends AppCompatActivity {
             planID = intent.getStringExtra(AddNewExerciseActivity.EXTRA_PLAN_ID);
             exerciseID = intent.getStringExtra(AddNewExerciseActivity.EXTRA_EXERCISE_ID);
         } else {
-            planID = intent.getStringExtra(NotificationService.EXTRA_PLAN_ID);
-            exerciseID = intent.getStringExtra(NotificationService.EXTRA_EXERCISE_ID);
+            planID = intent.getStringExtra(EXTRA_PLAN_ID);
+            exerciseID = intent.getStringExtra(EXTRA_EXERCISE_ID);
         }
 
 

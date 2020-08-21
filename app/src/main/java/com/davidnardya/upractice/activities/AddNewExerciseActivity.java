@@ -162,7 +162,9 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         String notificationTitle = "This is a reminder for your " + newExerciseName.getText().toString() + " exercise!";
-        String notificationText = "Click to view your exercise!";
+        //Cannot send to specific exercise, need to figure this out.
+        //String notificationText = "Click to view your exercise!";
+        String notificationText = "Click to enter uPractice and view your plans!";
 
         Intent intent = new Intent(this, AlarmReceiver.class);
         intent.putExtra(EXTRA_NOTIFICATION_TITLE, notificationTitle);
