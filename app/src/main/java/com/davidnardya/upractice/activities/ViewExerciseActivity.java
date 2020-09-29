@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -29,6 +30,7 @@ public class ViewExerciseActivity extends AppCompatActivity {
     RadioGroup radioGroup;
     RadioButton radioButton;
 
+    final String TAG = "ViewExerciseActivity";
     RadioButton rbNotStarted;
     RadioButton rbInProgress;
     RadioButton rbCompleted;
@@ -45,6 +47,7 @@ public class ViewExerciseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_exercise);
 
+
         exerciseName = findViewById(R.id.exercise_details_exercise_name_text_view);
         exerciseDescription = findViewById(R.id.exercise_details_exercise_description_text_view);
         radioGroup = findViewById(R.id.radio_group);
@@ -57,6 +60,7 @@ public class ViewExerciseActivity extends AppCompatActivity {
         if(intent.getStringExtra(ViewPlanActivity.EXTRA_PLAN_ID) != null){
             planID = intent.getStringExtra(ViewPlanActivity.EXTRA_PLAN_ID);
             exerciseID = intent.getStringExtra(ViewPlanActivity.EXTRA_EXERCISE_ID);
+            Log.d(TAG, "onCreate: extras exists: "  +  planID + ", " + exerciseID);
         } else {
             planID = intent.getStringExtra(AddNewExerciseActivity.EXTRA_PLAN_ID);
             exerciseID = intent.getStringExtra(AddNewExerciseActivity.EXTRA_EXERCISE_ID);
