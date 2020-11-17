@@ -127,12 +127,6 @@ public class AddNewExerciseActivity extends AppCompatActivity {
             }
         });
 
-//        notificationManager = NotificationManagerCompat.from(this);
-
-        //Notification for exercise
-
-
-
     }
 
     public void createNewExercise(){
@@ -162,8 +156,6 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         String notificationTitle = "This is a reminder for your " + newExerciseName.getText().toString() + " exercise!";
-        //Cannot send to specific exercise, need to figure this out.
-        //String notificationText = "Click to view your exercise!";
         String notificationText = "Click to enter uPractice and view your plans!";
 
         Intent intent = new Intent(this, AlarmReceiver.class);
@@ -175,6 +167,8 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, timePicked.getTimeInMillis(), pendingIntent);
+
+
     }
 
     private void cancelAlarm(){

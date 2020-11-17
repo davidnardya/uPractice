@@ -19,6 +19,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -31,7 +32,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 public class LoginActivity extends AppCompatActivity {
-
 
     private static final String TAG = "GOOGLE_SIGN_IN";
     private GoogleSignInClient mGoogleSignInClient;
@@ -54,9 +54,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-
-
         mAuth = FirebaseAuth.getInstance();
 
         signInRequest();
@@ -74,10 +71,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 revokeAccess();
+                //TODO splash loader
             }
         });
-
-
     }
 
     @Override
@@ -112,26 +108,20 @@ public class LoginActivity extends AppCompatActivity {
                                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                             @Override
                             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                Log.d(TAG, "onSuccess: ");
                                 QuerySnapshot querySnapshot = queryDocumentSnapshots;
                                 AppDB.getInstance(getApplicationContext()).entitiesDao()
                                         .insertExercises(queryDocumentSnapshots.toObjects(Exercise.class));
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "onFailure: " + e);
+                                //TODO make toast
                             }
                         });
-
-//                        if (task.isSuccessful()) {
-//                            // Sign in success, update UI with the signed-in user's information
-//                            Log.d(TAG, "signInWithCredential:success");
-//                            FirebaseUser user = mAuth.getCurrentUser();
-//                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                            startActivity(intent);
-//                        } else {
-//                            // If sign in fails, display a message to the user.
-//                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-//                            Toast.makeText(LoginActivity.this,
-//                                    "Cannot log in, authentication failed", Toast.LENGTH_SHORT).show();
-//                        }
-
-                        // ...
                     }
                 });
     }
