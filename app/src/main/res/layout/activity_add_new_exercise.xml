@@ -125,22 +125,22 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                >
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:orientation="horizontal"-->
+<!--                >-->
 
-                <CheckBox
-                    android:id="@+id/exercise_every_day_checkbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Every Day"
-                    style="@style/ExerciseTitleFont"
-
-                    />
-            </LinearLayout>
+<!--                <CheckBox-->
+<!--                    android:id="@+id/exercise_every_day_checkbox"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:text="Every Day"-->
+<!--                    style="@style/ExerciseTitleFont"-->
+<!--                    -->
+<!--                    />-->
+<!--            </LinearLayout>-->
         </LinearLayout>
 
 </androidx.cardview.widget.CardView>
@@ -155,7 +155,6 @@
         android:layout_margin="50dp"
         android:src="@drawable/ic_check_black_24dp"
         android:elevation="5dp"
-
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

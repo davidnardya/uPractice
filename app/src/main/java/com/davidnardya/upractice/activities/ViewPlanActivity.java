@@ -35,8 +35,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 public class ViewPlanActivity extends AppCompatActivity implements PlanFirestoreAdapter.OnExerciseClick,
         PlanDeletionDialog.PlanDeletionListener {
 
-    public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
-    public static final String EXTRA_EXERCISE_ID = "com.davidnardya.upractice.activities.EXTRA_EXERCISE_ID";
+    public static final String ViewPlanActivityEXTRA_PLAN_ID = "com.davidnardya.upractice.ViewPlanActivity.EXTRA_PLAN_ID";
+    public static final String ViewPlanActivityEXTRA_EXERCISE_ID = "com.davidnardya.upractice.ViewPlanActivity.EXTRA_EXERCISE_ID";
 
     String planID;
     String exerciseID;
@@ -58,7 +58,15 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
         setContentView(R.layout.activity_view_plan);
 
         Intent intent = getIntent();
-        planID = intent.getStringExtra(MainActivity.EXTRA_PLAN_ID);
+        if (intent.getStringExtra(MainActivity.MainActivityEXTRA_PLAN_ID) != null) {
+            planID = intent.getStringExtra(MainActivity.MainActivityEXTRA_PLAN_ID);
+        } else if (intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID) != null){
+            planID = intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID);
+        } else if (intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID) != null){
+            planID = intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID);
+        } else {
+            Toast.makeText(this, "Plan ID is Null", Toast.LENGTH_SHORT).show();
+        }
 
         exercisesRecyclerView = findViewById(R.id.exercises_recycler_view);
         planName = findViewById(R.id.plan_details_plan_name_text_view);
@@ -142,7 +150,7 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
                                     .deleteExercise(exerciseNameToDelete.getExerciseID());
                             adapter.notifyDataSetChanged();
                             Intent intent = new Intent(ViewPlanActivity.this, ViewPlanActivity.class);
-                            intent.putExtra(EXTRA_PLAN_ID, planID);
+                            intent.putExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID, planID);
                             startActivity(intent);
                             finish();
                         } else if (collectionCount == 1){
@@ -170,9 +178,9 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
     @Override
     public void onExerciseClick(DocumentSnapshot snapshot, int position) {
         Intent intent = new Intent(ViewPlanActivity.this, ViewExerciseActivity.class);
-        intent.putExtra(EXTRA_PLAN_ID, planID);
+        intent.putExtra(ViewPlanActivityEXTRA_PLAN_ID, planID);
         exerciseID = snapshot.getId();
-        intent.putExtra(EXTRA_EXERCISE_ID, exerciseID);
+        intent.putExtra(ViewPlanActivityEXTRA_EXERCISE_ID, exerciseID);
         startActivity(intent);
     }
 
@@ -184,9 +192,11 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
     }
 
     public void passDataToNewExerciseActivity(){
+
         Intent intent = new Intent(ViewPlanActivity.this, AddNewExerciseActivity.class);
-        intent.putExtra(EXTRA_PLAN_ID, planID);
+        intent.putExtra(ViewPlanActivityEXTRA_PLAN_ID, planID);
         startActivity(intent);
+        finish();
     }
 
     public void openDeletePlanDialog(String planIDToDelete, String exerciseIDToDelete){

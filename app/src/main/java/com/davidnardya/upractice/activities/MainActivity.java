@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,12 +32,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
-public class MainActivity extends AppCompatActivity implements MainFirestoreAdapter.OnPlanClick {
+public class MainActivity extends AppCompatActivity implements MainFirestoreAdapter.OnPlanClick, PopupMenu.OnMenuItemClickListener {
 
     private RecyclerView plansRecyclerView;
     private MainFirestoreAdapter adapter;
     private FloatingActionButton addNewActivityFab;
-    public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
+    public static final String MainActivityEXTRA_PLAN_ID = "com.davidnardya.upractice.MainActivity.EXTRA_PLAN_ID";
     String planID;
 
 
@@ -44,11 +46,27 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
     private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private CollectionReference plansCollection = dataBase.collection("Users").document(userID).collection("Plans");
 
-    private Button logOutBtn;
+    private ImageView logOutBtn;
     private TextView userNameDisplay;
     private GoogleSignInAccount signInAccount;
     private String welcomeText;
 
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.popup_menu_logout:
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.popup_menu_info:
+                Toast.makeText(this, "Made by David Nardya", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return false;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,11 +109,19 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
         logOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
+
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this, v);
+                popupMenu.setOnMenuItemClickListener(MainActivity.this);
+                popupMenu.inflate(R.menu.main_activity_popup_menu);
+                popupMenu.show();
+
+//                FirebaseAuth.getInstance().signOut();
+//                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+//                startActivity(intent);
             }
         });
+
+
 
         //new plan click listener
         addNewActivityFab.setOnClickListener(new View.OnClickListener() {
@@ -130,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
     public void onPlanClick(DocumentSnapshot snapshot, int position) {
         Intent intent = new Intent(MainActivity.this, ViewPlanActivity.class);
         planID = snapshot.getId();
-        intent.putExtra(EXTRA_PLAN_ID, planID);
+        intent.putExtra(MainActivityEXTRA_PLAN_ID, planID);
         startActivity(intent);
     }
 

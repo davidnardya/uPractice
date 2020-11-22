@@ -1,6 +1,5 @@
 package com.davidnardya.upractice.activities;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -16,16 +15,14 @@ import com.google.firebase.firestore.DocumentReference;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.sql.Timestamp;
-
 
 public class AddNewPlanActivity extends AppCompatActivity {
 
     EditText newPlanName, newPlanDescription;
     FloatingActionButton addExerciseFAB;
-    public static final String EXTRA_PLAN_NAME = "com.davidnardya.upractice.activities.EXTRA_PLAN_NAME";
-    public static final String EXTRA_PLAN_DESCRIPTION = "com.davidnardya.upractice.activities.EXTRA_PLAN_DESCRIPTION";
-    public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
+    public static final String AddNewPlanActivityEXTRA_PLAN_NAME = "com.davidnardya.upractice.AddNewPlanActivity.EXTRA_PLAN_NAME";
+    public static final String AddNewPlanActivityEXTRA_PLAN_DESCRIPTION = "com.davidnardya.upractice.AddNewPlanActivity.EXTRA_PLAN_DESCRIPTION";
+    public static final String AddNewPlanActivityEXTRA_PLAN_ID = "com.davidnardya.upractice.AddNewPlanActivity.EXTRA_PLAN_ID";
 
     String planName, planDescription, planID;
 
@@ -65,9 +62,9 @@ public class AddNewPlanActivity extends AppCompatActivity {
     public void passDataToNewExerciseActivity(){
 
         Intent intent = new Intent(AddNewPlanActivity.this, AddNewExerciseActivity.class);
-        intent.putExtra(EXTRA_PLAN_NAME, planName);
-        intent.putExtra(EXTRA_PLAN_DESCRIPTION, planDescription);
-        intent.putExtra(EXTRA_PLAN_ID, planID);
+        intent.putExtra(AddNewPlanActivityEXTRA_PLAN_NAME, planName);
+        intent.putExtra(AddNewPlanActivityEXTRA_PLAN_DESCRIPTION, planDescription);
+        intent.putExtra(AddNewPlanActivityEXTRA_PLAN_ID, planID);
         startActivity(intent);
     }
 

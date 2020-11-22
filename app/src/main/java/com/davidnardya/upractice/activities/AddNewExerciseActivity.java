@@ -1,18 +1,18 @@
 package com.davidnardya.upractice.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -22,19 +22,24 @@ import android.widget.TimePicker;
 import com.davidnardya.upractice.R;
 import com.davidnardya.upractice.db.AppDB;
 import com.davidnardya.upractice.notifications.AlarmReceiver;
-import com.davidnardya.upractice.notifications.App;
 import com.davidnardya.upractice.notifications.NotificationService;
 import com.davidnardya.upractice.pojo.Exercise;
 import com.davidnardya.upractice.pojo.ExerciseStatus;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
 
 public class AddNewExerciseActivity extends AppCompatActivity {
@@ -52,23 +57,20 @@ public class AddNewExerciseActivity extends AppCompatActivity {
 
 
     String exerciseID;
-
     String planName, planDescription, planID;
+    Timestamp timestamp;
+    Timestamp datestamp;
+    DocumentReference exerciseRef;
 
-    public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
-    public static final String EXTRA_EXERCISE_ID = "com.davidnardya.upractice.activities.EXTRA_EXERCISE_ID";
-    public static final String EXTRA_NOTIFICATION_TITLE = "com.davidnardya.upractice.activities.EXTRA_NOTIFICATION_TITLE";
-    public static final String EXTRA_NOTIFICATION_TEXT = "com.davidnardya.upractice.activities.EXTRA_NOTIFICATION_TEXT";
+    public static final String AddNewExerciseActivityEXTRA_PLAN_ID = "com.davidnardya.upractice.AddNewExerciseActivity.EXTRA_PLAN_ID";
+    public static final String AddNewExerciseActivityEXTRA_EXERCISE_ID = "com.davidnardya.upractice.AddNewExerciseActivity.EXTRA_EXERCISE_ID";
+    public static final String AddNewExerciseActivityEXTRA_NOTIFICATION_TITLE = "com.davidnardya.upractice.AddNewExerciseActivity.EXTRA_NOTIFICATION_TITLE";
+    public static final String AddNewExerciseActivityEXTRA_NOTIFICATION_TEXT = "com.davidnardya.upractice.AddNewExerciseActivity.EXTRA_NOTIFICATION_TEXT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_exercise);
-
-        Intent intent = getIntent();
-        planName = intent.getStringExtra(AddNewPlanActivity.EXTRA_PLAN_NAME);
-        planDescription = intent.getStringExtra(AddNewPlanActivity.EXTRA_PLAN_DESCRIPTION);
-        planID = intent.getStringExtra(AddNewPlanActivity.EXTRA_PLAN_ID);
 
         newExerciseName = findViewById(R.id.new_exercise_name_edit_text);
         newExerciseDescription = findViewById(R.id.new_exercise_description_edit_text);
@@ -76,10 +78,32 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         pickTimeButton = findViewById(R.id.exercise_set_time_button);
         pickDateButton = findViewById(R.id.exercise_set_date_button);
 
+        Intent intent = getIntent();
+        if(intent.getStringExtra(AddNewPlanActivity.AddNewPlanActivityEXTRA_PLAN_NAME) != null){
+            planName = intent.getStringExtra(AddNewPlanActivity.AddNewPlanActivityEXTRA_PLAN_NAME);
+            planDescription = intent.getStringExtra(AddNewPlanActivity.AddNewPlanActivityEXTRA_PLAN_DESCRIPTION);
+            planID = intent.getStringExtra(AddNewPlanActivity.AddNewPlanActivityEXTRA_PLAN_ID);
+        } else if (intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID) != null){
+            planID = intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID);
+            exerciseID = intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_EXERCISE_ID);
+        } else if (intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID) != null) {
+            planID = intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID);
+            exerciseID = intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_EXERCISE_ID);
+            setExistingExercise();
+        } else {
+            Log.d("SomethingIsWrong", "onCreate: ");
+        }
+
         finishExerciseFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createNewExercise();
+                Intent intent = getIntent();
+                if(intent.getStringExtra(AddNewPlanActivity.AddNewPlanActivityEXTRA_PLAN_NAME) != null ||
+                        intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID) != null){
+                    createNewExercise();
+                } else if (intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID) != null) {
+                    editExercise();
+                }
             }
         });
 
@@ -152,6 +176,70 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void editExercise(){
+        exerciseRef = dataBase.collection("Users").document(userID)
+                .collection("Plans").document(planID)
+                .collection("Exercises").document(exerciseID);
+
+        exerciseRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                DocumentSnapshot document = task.getResult();
+                ExerciseStatus exerciseStatusTemp = ExerciseStatus.NOT_STARTED;
+                if (document != null) {
+
+                    String statusString = Objects.requireNonNull(document.get("exerciseStatus")).toString();
+                    String inProgress = ExerciseStatus.IN_PROGRESS.toString();
+                    String completed = ExerciseStatus.COMPLETED.toString();
+
+                    if (statusString.equals(inProgress)) {
+                        exerciseStatusTemp = ExerciseStatus.IN_PROGRESS;
+                    } else if (statusString.equals(completed)){
+                        exerciseStatusTemp = ExerciseStatus.COMPLETED;
+                    }
+
+                    exerciseRef.delete();
+
+                    AppDB.getInstance(getApplicationContext()).entitiesDao()
+                            .deleteExercise(exerciseID);
+
+                    ExerciseName = newExerciseName.getText().toString();
+                    ExerciseDescription = newExerciseDescription.getText().toString();
+                    Date exerciseDate = timePicked.getTime();
+
+                    Exercise exercise = new Exercise(ExerciseName, ExerciseDescription, exerciseStatusTemp, exerciseDate);
+                    String newExerciseID = dataBase.collection("Users")
+                            .document(userID).collection("Plans")
+                            .document(planID).collection("Exercises").document().getId();
+                    exercise.setExerciseID(newExerciseID);
+                    dataBase.collection("Users").document(userID)
+                            .collection("Plans").document(planID)
+                            .collection("Exercises").document(newExerciseID).set(exercise);
+
+                    AppDB.getInstance(getApplicationContext()).entitiesDao().insertExercise(exercise);
+
+                    AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+                    String notificationTitle = "This is a reminder for your " + newExerciseName.getText().toString() + " exercise!";
+                    String notificationText = "Click to enter uPractice and view your plans!";
+
+                    Intent intent = new Intent(AddNewExerciseActivity.this, AlarmReceiver.class);
+                    intent.putExtra(AddNewExerciseActivityEXTRA_NOTIFICATION_TITLE, notificationTitle);
+                    intent.putExtra(AddNewExerciseActivityEXTRA_NOTIFICATION_TEXT, notificationText);
+                    intent.putExtra(AddNewExerciseActivityEXTRA_PLAN_ID, planID);
+                    intent.putExtra(AddNewExerciseActivityEXTRA_EXERCISE_ID, newExerciseID);
+
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(AddNewExerciseActivity.this, 1, intent, 0);
+
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, timePicked.getTimeInMillis(), pendingIntent);
+
+                    Intent secondIntent = new Intent(AddNewExerciseActivity.this, MainActivity.class);
+                    startActivity(secondIntent);
+                }
+            }
+        });
+    }
+
     private void startAlarm(Calendar timePicked) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -159,10 +247,10 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         String notificationText = "Click to enter uPractice and view your plans!";
 
         Intent intent = new Intent(this, AlarmReceiver.class);
-        intent.putExtra(EXTRA_NOTIFICATION_TITLE, notificationTitle);
-        intent.putExtra(EXTRA_NOTIFICATION_TEXT, notificationText);
-        intent.putExtra(EXTRA_PLAN_ID, planID);
-        intent.putExtra(EXTRA_EXERCISE_ID, exerciseID);
+        intent.putExtra(AddNewExerciseActivityEXTRA_NOTIFICATION_TITLE, notificationTitle);
+        intent.putExtra(AddNewExerciseActivityEXTRA_NOTIFICATION_TEXT, notificationText);
+        intent.putExtra(AddNewExerciseActivityEXTRA_PLAN_ID, planID);
+        intent.putExtra(AddNewExerciseActivityEXTRA_EXERCISE_ID, exerciseID);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
 
@@ -185,10 +273,10 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         String notificationText = "Click to view your exercise!";
 
         Intent notificationServiceIntent = new Intent(this, NotificationService.class);
-        notificationServiceIntent.putExtra(EXTRA_NOTIFICATION_TITLE, notificationTitle);
-        notificationServiceIntent.putExtra(EXTRA_NOTIFICATION_TEXT, notificationText);
-        notificationServiceIntent.putExtra(EXTRA_PLAN_ID, planID);
-        notificationServiceIntent.putExtra(EXTRA_EXERCISE_ID, exerciseID);
+        notificationServiceIntent.putExtra(AddNewExerciseActivityEXTRA_NOTIFICATION_TITLE, notificationTitle);
+        notificationServiceIntent.putExtra(AddNewExerciseActivityEXTRA_NOTIFICATION_TEXT, notificationText);
+        notificationServiceIntent.putExtra(AddNewExerciseActivityEXTRA_PLAN_ID, planID);
+        notificationServiceIntent.putExtra(AddNewExerciseActivityEXTRA_EXERCISE_ID, exerciseID);
         ContextCompat.startForegroundService(this, notificationServiceIntent);
     }
 
@@ -197,4 +285,28 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         stopService(notificationServiceIntent);
     }
 
+    private void setExistingExercise() {
+        exerciseRef = dataBase.collection("Users").document(userID)
+                .collection("Plans").document(planID)
+                .collection("Exercises").document(exerciseID);
+        exerciseRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                DocumentSnapshot document = task.getResult();
+                if (document != null) {
+                    @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("HH:mm");
+                    @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MMM/yyyy");
+                    timestamp = (Timestamp) document.get("exerciseAlertDate");
+                    datestamp = (Timestamp) document.get("exerciseAlertDate");
+                    String time = simpleTimeFormat.format(timestamp.toDate());
+                    String date = simpleDateFormat.format(timestamp.toDate());
+                    pickTimeButton.setText(time);
+                    pickDateButton.setText(date);
+
+                    newExerciseName.setText(document.getString("exerciseName"));
+                    newExerciseDescription.setText(document.getString("exerciseDescription"));
+                }
+            }
+        });
     }
+}

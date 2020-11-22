@@ -19,12 +19,14 @@ import com.davidnardya.upractice.activities.MainActivity;
 import com.davidnardya.upractice.activities.ViewExerciseActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Random;
+
 public class NotificationService extends IntentService {
 
-    public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
-    public static final String EXTRA_EXERCISE_ID = "com.davidnardya.upractice.activities.EXTRA_EXERCISE_ID";
-    public static final String EXTRA_NOTIFICATION_TITLE = "com.davidnardya.upractice.activities.EXTRA_NOTIFICATION_TITLE";
-    public static final String EXTRA_NOTIFICATION_TEXT = "com.davidnardya.upractice.activities.EXTRA_NOTIFICATION_TEXT";
+    public static final String NotificationServiceEXTRA_PLAN_ID = "com.davidnardya.upractice.NotificationService.EXTRA_PLAN_ID";
+    public static final String NotificationServiceEXTRA_EXERCISE_ID = "com.davidnardya.upractice.NotificationService.EXTRA_EXERCISE_ID";
+    public static final String NotificationServiceEXTRA_NOTIFICATION_TITLE = "com.davidnardya.upractice.NotificationService.EXTRA_NOTIFICATION_TITLE";
+    public static final String NotificationServiceEXTRA_NOTIFICATION_TEXT = "com.davidnardya.upractice.NotificationService.EXTRA_NOTIFICATION_TEXT";
     String planID, exerciseID;
     int pendingIntentRequestCode;
 
@@ -44,16 +46,17 @@ public class NotificationService extends IntentService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        String notificationTitle = intent.getStringExtra(EXTRA_NOTIFICATION_TITLE);
-        String notificationText = intent.getStringExtra(EXTRA_NOTIFICATION_TEXT);
-        planID = intent.getStringExtra(EXTRA_PLAN_ID);
-        exerciseID = intent.getStringExtra(EXTRA_EXERCISE_ID);
+        String notificationTitle = intent.getStringExtra(AlarmReceiver.AlarmReceiverEXTRA_NOTIFICATION_TITLE);
+        String notificationText = intent.getStringExtra(AlarmReceiver.AlarmReceiverEXTRA_NOTIFICATION_TEXT);
+        planID = intent.getStringExtra(AlarmReceiver.AlarmReceiverEXTRA_PLAN_ID);
+        exerciseID = intent.getStringExtra(AlarmReceiver.AlarmReceiverEXTRA_EXERCISE_ID);
 
-        pendingIntentRequestCode = Integer.parseInt(exerciseID.replaceAll("[^0-9]", ""));
+        Random random = new Random();
+        pendingIntentRequestCode = random.nextInt(1000) + 1;
 
         Intent notificationIntent = new Intent(this, ViewExerciseActivity.class);
-        notificationIntent.putExtra(EXTRA_PLAN_ID, planID);
-        notificationIntent.putExtra(EXTRA_EXERCISE_ID, exerciseID);
+        notificationIntent.putExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID, planID);
+        notificationIntent.putExtra(NotificationService.NotificationServiceEXTRA_EXERCISE_ID, exerciseID);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, pendingIntentRequestCode,
                 notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);

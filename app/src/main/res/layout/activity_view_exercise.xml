@@ -64,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/TitleFont"
-            android:text="Alert: HH:MM DD/MM/YYYY"
+            tools:text="Alert: HH:MM DD/MM/YYYY"
 
             />
 
@@ -78,13 +78,17 @@
         android:elevation="1dp"
         app:cardCornerRadius="5dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/view_exercise_page_exercise_alert_card_view">
+        app:layout_constraintTop_toBottomOf="@id/view_exercise_page_exercise_alert_card_view"
+        android:backgroundTint="@android:color/darker_gray"
+        >
 
         <Button
+            android:id="@+id/edit_exercise_button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="Edit"
             style="@style/TitleFont"
+            android:backgroundTint="@android:color/darker_gray"
 
             />
 

@@ -4,6 +4,8 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import com.google.firebase.firestore.ServerTimestamp;
+
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -16,6 +18,7 @@ public class Exercise {
     private String exerciseName, exerciseDescription, ExerciseID;
     @Ignore
     private ExerciseStatus exerciseStatus = ExerciseStatus.NOT_STARTED;
+    @ServerTimestamp
     private Date exerciseAlertDate;
 
     @Ignore
