@@ -2,17 +2,24 @@ package com.davidnardya.upractice.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.davidnardya.upractice.fragments.PlanDescriptionFragment;
 import com.davidnardya.upractice.R;
 import com.davidnardya.upractice.adapters.PlanDeletionDialog;
 import com.davidnardya.upractice.adapters.PlanFirestoreAdapter;
@@ -32,6 +39,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+
 public class ViewPlanActivity extends AppCompatActivity implements PlanFirestoreAdapter.OnExerciseClick,
         PlanDeletionDialog.PlanDeletionListener {
 
@@ -49,8 +60,13 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
     PlanFirestoreAdapter adapter;
     TextView planName;
     FloatingActionButton addNewExerciseFab;
+    CardView viewPlansPageCardView;
 
-    private boolean deletePlan = false;
+    boolean deletePlan;
+    boolean fragmentIsActive = false;
+
+    private FrameLayout planDescriptionFragmentContainer;
+    PlanDescriptionFragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +87,8 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
         exercisesRecyclerView = findViewById(R.id.exercises_recycler_view);
         planName = findViewById(R.id.plan_details_plan_name_text_view);
         addNewExerciseFab = findViewById(R.id.add_new_exercise_to_plan_page_fab);
+        planDescriptionFragmentContainer = findViewById(R.id.plan_description_fragment_container);
+        viewPlansPageCardView = findViewById(R.id.view_plans_page_card_view);
 
         exercisesCollection = dataBase.collection("Users").document(userID)
                 .collection("Plans").document(planID).collection("Exercises");
@@ -161,6 +179,31 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
                 });
             }
         }).attachToRecyclerView(exercisesRecyclerView);
+
+        planName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //To get the parent's plan name
+                DocumentReference nameRef = dataBase.collection("Users")
+                        .document(userID).collection("Plans").document(planID);
+                nameRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null){
+                            String planDescription = document.getString("planDescription");
+                            openFragment(planDescription);
+                        } else {
+                            Toast.makeText(ViewPlanActivity.this, "Name is null!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+
+
+            }
+        });
     }
 
     @Override
@@ -186,9 +229,23 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(ViewPlanActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        if(!fragmentIsActive) {
+            Intent intent = new Intent(ViewPlanActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        } else if (fragmentIsActive) {
+            Objects.requireNonNull(fragment.getActivity()).getSupportFragmentManager().popBackStack();
+            fragmentIsActive = false;
+
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    viewPlansPageCardView.setVisibility(View.VISIBLE);
+                    addNewExerciseFab.setVisibility(View.VISIBLE);
+                }
+            }, 150);
+        }
     }
 
     public void passDataToNewExerciseActivity(){
@@ -210,5 +267,16 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
         deletePlan = ifTrueDeletePlan;
     }
 
+    public void openFragment(String planDescription){
+        fragment = PlanDescriptionFragment.newInstance(planDescription);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right);
+        transaction.addToBackStack(null);
+        transaction.add(R.id.plan_description_fragment_container, fragment, "PLAN_DESCRIPTION_FRAGMENT").commit();
+        fragmentIsActive = true;
+        addNewExerciseFab.setVisibility(View.INVISIBLE);
+        viewPlansPageCardView.setVisibility(View.INVISIBLE);
 
+    }
 }

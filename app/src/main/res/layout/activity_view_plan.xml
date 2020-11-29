@@ -18,6 +18,8 @@
         app:cardCornerRadius="5dp"
         >
 
+
+
         <TextView
             android:id="@+id/plan_details_plan_name_text_view"
             android:layout_width="match_parent"
@@ -27,6 +29,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            android:stateListAnimator="@null"
             />
 
     </androidx.cardview.widget.CardView>
@@ -51,11 +54,17 @@
         android:layout_margin="50dp"
         android:src="@drawable/ic_add_black_24dp"
         android:elevation="5dp"
+        android:stateListAnimator="@null"
 
         />
 
 
-
+    <FrameLayout
+        android:id="@+id/plan_description_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
