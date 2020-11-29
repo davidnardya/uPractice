@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.davidnardya.upractice.R;
+import com.davidnardya.upractice.activities.AddNewExerciseActivity;
 import com.davidnardya.upractice.activities.MainActivity;
 import com.davidnardya.upractice.activities.ViewExerciseActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,7 +29,7 @@ public class NotificationService extends IntentService {
     public static final String NotificationServiceEXTRA_NOTIFICATION_TITLE = "com.davidnardya.upractice.NotificationService.EXTRA_NOTIFICATION_TITLE";
     public static final String NotificationServiceEXTRA_NOTIFICATION_TEXT = "com.davidnardya.upractice.NotificationService.EXTRA_NOTIFICATION_TEXT";
     String planID, exerciseID;
-    int pendingIntentRequestCode;
+    int pendingIntentRequestCode, pendingContentRequestCode, pendingActionRequestCode;
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -53,13 +54,29 @@ public class NotificationService extends IntentService {
 
         Random random = new Random();
         pendingIntentRequestCode = random.nextInt(1000) + 1;
+        pendingContentRequestCode = random.nextInt(1000) + 1;
+        if (pendingContentRequestCode == pendingIntentRequestCode) {
+            pendingContentRequestCode--;
+        }
+        pendingActionRequestCode = random.nextInt(1000) + 1;
+        if (pendingActionRequestCode == pendingIntentRequestCode || pendingActionRequestCode == pendingContentRequestCode) {
+            pendingActionRequestCode--;
+        }
 
+        //When user clicks on the notification
         Intent notificationIntent = new Intent(this, ViewExerciseActivity.class);
         notificationIntent.putExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID, planID);
         notificationIntent.putExtra(NotificationService.NotificationServiceEXTRA_EXERCISE_ID, exerciseID);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, pendingIntentRequestCode,
                 notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        //The user clicks on the "Set new time" action
+        Intent editNotificationIntent = new Intent(this, AddNewExerciseActivity.class);
+        editNotificationIntent.putExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID, planID);
+        editNotificationIntent.putExtra(NotificationService.NotificationServiceEXTRA_EXERCISE_ID, exerciseID);
+
+        PendingIntent actionIntent = PendingIntent.getActivity(this, pendingActionRequestCode, editNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Uri uri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -69,9 +86,11 @@ public class NotificationService extends IntentService {
                 .setContentTitle(notificationTitle)
                 .setContentText(notificationText)
                 .setContentIntent(contentIntent)
-                .setSound(uri)
+                .addAction(R.mipmap.ic_launcher, "Set new time", actionIntent)
                 .setAutoCancel(true)
+                .setSound(uri)
                 .build();
+
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 

@@ -40,6 +40,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Random;
 
 
 public class AddNewExerciseActivity extends AppCompatActivity {
@@ -90,6 +91,10 @@ public class AddNewExerciseActivity extends AppCompatActivity {
             planID = intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID);
             exerciseID = intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_EXERCISE_ID);
             setExistingExercise();
+        } else if (intent.getStringExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID) != null){
+            planID = intent.getStringExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID);
+            exerciseID = intent.getStringExtra(NotificationService.NotificationServiceEXTRA_EXERCISE_ID);
+            setExistingExercise();
         } else {
             Log.d("SomethingIsWrong", "onCreate: ");
         }
@@ -102,6 +107,8 @@ public class AddNewExerciseActivity extends AppCompatActivity {
                         intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID) != null){
                     createNewExercise();
                 } else if (intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID) != null) {
+                    editExercise();
+                } else if (intent.getStringExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID) != null){
                     editExercise();
                 }
             }
@@ -229,7 +236,10 @@ public class AddNewExerciseActivity extends AppCompatActivity {
                     intent.putExtra(AddNewExerciseActivityEXTRA_PLAN_ID, planID);
                     intent.putExtra(AddNewExerciseActivityEXTRA_EXERCISE_ID, newExerciseID);
 
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(AddNewExerciseActivity.this, 1, intent, 0);
+                    Random random = new Random();
+                    int pendingIntentRequestCode = random.nextInt(1000) + 1;
+
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(AddNewExerciseActivity.this, pendingIntentRequestCode, intent, 0);
 
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, timePicked.getTimeInMillis(), pendingIntent);
 
@@ -242,6 +252,8 @@ public class AddNewExerciseActivity extends AppCompatActivity {
 
     private void startAlarm(Calendar timePicked) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Random random = new Random();
+        int pendingIntentRequestCode = random.nextInt(1000) + 1;
 
         String notificationTitle = "This is a reminder for your " + newExerciseName.getText().toString() + " exercise!";
         String notificationText = "Click to enter uPractice and view your plans!";
@@ -252,7 +264,7 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         intent.putExtra(AddNewExerciseActivityEXTRA_PLAN_ID, planID);
         intent.putExtra(AddNewExerciseActivityEXTRA_EXERCISE_ID, exerciseID);
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, pendingIntentRequestCode, intent, 0);
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, timePicked.getTimeInMillis(), pendingIntent);
 
