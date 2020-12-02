@@ -42,6 +42,10 @@ import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
 
+    //Authentication
+    private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
+
     //Final properties
     private static final String TAG = "GOOGLE_SIGN_IN";
     private static final int RC_SIGN_IN = 1231;
@@ -51,8 +55,6 @@ public class LoginActivity extends AppCompatActivity {
     SignInButton signInButton;
 
     //Other properties
-    private GoogleSignInClient mGoogleSignInClient;
-    private FirebaseAuth mAuth;
     TextView textView;
     SplashScreenFragment fragment;
 
@@ -70,8 +72,10 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
+        signInRequest();
 
         signInButton = findViewById(R.id.sign_in_google_btn);
         textView = findViewById(R.id.signinwithgoogl_textview);
@@ -81,7 +85,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void configureActivity() {
-        signInRequest();
         configureSignInButton();
         setText();
         configureRevokeButton();
@@ -155,7 +158,6 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Log.d(TAG, "onFailure: " + e);
-                                //TODO make toast
                             }
                         });
                     }
@@ -173,6 +175,12 @@ public class LoginActivity extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
+    //Used in the log in button
+    private void signIn() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
     public void revokeAccess() {
         mGoogleSignInClient.revokeAccess();
         final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
@@ -186,13 +194,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         }, 3000);
     }
-
-    //Used in the log in button
-    private void signIn() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
 
     public void openFragment() {
         fragment = SplashScreenFragment.newInstance();

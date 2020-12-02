@@ -45,25 +45,25 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements MainFirestoreAdapter.OnPlanClick, PopupMenu.OnMenuItemClickListener {
 
+    //Strings
+    private String userID = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+    public static final String MainActivityEXTRA_PLAN_ID = "com.davidnardya.upractice.MainActivity.EXTRA_PLAN_ID";
+    private String welcomeText;
+    String planID;
+
+    //TextViews
+    private TextView userNameDisplay;
+    TextView empty;
+
+    //Other properties
+    private ImageView logOutBtn;
     private RecyclerView plansRecyclerView;
     private MainFirestoreAdapter adapter;
     private FloatingActionButton addNewActivityFab;
-    public static final String MainActivityEXTRA_PLAN_ID = "com.davidnardya.upractice.MainActivity.EXTRA_PLAN_ID";
-    String planID;
-
-    private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
-
-    private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-    private CollectionReference plansCollection = dataBase.collection("Users").document(userID).collection("Plans");
-
-    private ImageView logOutBtn;
-    private TextView userNameDisplay;
     private GoogleSignInAccount signInAccount;
-    private String welcomeText;
-
+    private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
     SplashScreenFragment fragment;
-    TextView empty;
-
+    private CollectionReference plansCollection = dataBase.collection("Users").document(userID).collection("Plans");
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
@@ -221,7 +221,6 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
         logOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 PopupMenu popupMenu = new PopupMenu(MainActivity.this, v);
                 popupMenu.setOnMenuItemClickListener(MainActivity.this);
                 popupMenu.inflate(R.menu.main_activity_popup_menu);
