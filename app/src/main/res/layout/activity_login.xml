@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/sign_in_google_btn"
-        android:text="sign in with your Google account"
+        tools:text="sign in with your Google account"
         android:gravity="center"
         />
 
@@ -33,7 +33,13 @@
         android:text="Remove account"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signinwithgoogl_textview" />
+        app:layout_constraintTop_toBottomOf="@+id/signinwithgoogl_textview"
 
+        />
+    <FrameLayout
+        android:id="@+id/login_activity_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

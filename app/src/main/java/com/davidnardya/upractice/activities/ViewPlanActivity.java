@@ -184,7 +184,6 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
             @Override
             public void onClick(View v) {
 
-                //To get the parent's plan name
                 DocumentReference nameRef = dataBase.collection("Users")
                         .document(userID).collection("Plans").document(planID);
                 nameRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

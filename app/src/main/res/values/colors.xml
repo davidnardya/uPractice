@@ -8,5 +8,6 @@
     <color name="exerciseStatusInProgress">#F6F940</color>
     <color name="exerciseStatusCompleted">#47EA60</color>
 
-    <color name="planDescriptionFragment">#5C5C5C</color>
+    <color name="planDescriptionFragment">#B4000000</color>
+    <color name="planDescriptionFragmentFont">#D5D5D5</color>
 </resources>

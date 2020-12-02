@@ -21,7 +21,7 @@
         android:id="@+id/welcome_message_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="User Name Welcome"
+        tools:text="User Name Welcome"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -50,6 +50,18 @@
 
         />
 
+    <TextView
+        android:id="@+id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/logo_img"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="Add new plans!"
+        android:textSize="20sp"
+        android:textAlignment="center"
+        />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_new_plan_to_plans_page_fab"
         android:layout_width="wrap_content"
@@ -62,12 +74,19 @@
 
         />
 
+    <FrameLayout
+        android:id="@+id/main_activity_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="-1dp" />
+
     <View
         android:id="@+id/bottomView"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@android:color/transparent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         />
 
 

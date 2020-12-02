@@ -3,12 +3,15 @@ package com.davidnardya.upractice.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,19 +21,27 @@ import android.widget.Toast;
 
 import com.davidnardya.upractice.R;
 import com.davidnardya.upractice.adapters.MainFirestoreAdapter;
+import com.davidnardya.upractice.fragments.PlanDescriptionFragment;
+import com.davidnardya.upractice.fragments.SplashScreenFragment;
+import com.davidnardya.upractice.pojo.LoadingDialog;
 import com.davidnardya.upractice.pojo.Plan;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements MainFirestoreAdapter.OnPlanClick, PopupMenu.OnMenuItemClickListener {
 
@@ -50,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
     private TextView userNameDisplay;
     private GoogleSignInAccount signInAccount;
     private String welcomeText;
+
+    SplashScreenFragment fragment;
+    TextView empty;
 
 
     @Override
@@ -77,6 +91,8 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
         userNameDisplay = findViewById(R.id.welcome_message_text_view);
         plansRecyclerView = findViewById(R.id.plans_recycler_view);
         addNewActivityFab = findViewById(R.id.add_new_plan_to_plans_page_fab);
+
+        openFragment();
 
         Query query = plansCollection;
 
@@ -114,10 +130,6 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
                 popupMenu.setOnMenuItemClickListener(MainActivity.this);
                 popupMenu.inflate(R.menu.main_activity_popup_menu);
                 popupMenu.show();
-
-//                FirebaseAuth.getInstance().signOut();
-//                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-//                startActivity(intent);
             }
         });
 
@@ -136,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
         signInAccount = GoogleSignIn.getLastSignedInAccount(this);
         welcomeText = "Welcome, " + signInAccount.getDisplayName();
         userNameDisplay.setText(welcomeText);
+
 
     }
 
@@ -160,5 +173,48 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
         startActivity(intent);
     }
 
+    public void openFragment(){
+        fragment = SplashScreenFragment.newInstance();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.addToBackStack(null);
+        transaction.add(R.id.main_activity_fragment_container, fragment, "MAIN_ACTIVITY_FRAGMENT").commit();
+        plansRecyclerView.setVisibility(View.INVISIBLE);
+        addNewActivityFab.setVisibility(View.INVISIBLE);
+
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Objects.requireNonNull(fragment.getActivity()).getSupportFragmentManager().popBackStack();
+                plansRecyclerView.setVisibility(View.VISIBLE);
+                addNewActivityFab.setVisibility(View.VISIBLE);
+                hideRecyclerViewIfEmpty();
+
+            }
+        }, 3000);
+
+
+    }
+
+    public void hideRecyclerViewIfEmpty() {
+        plansCollection.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (Objects.requireNonNull(task.getResult()).size() > 0) {
+                    empty = findViewById(R.id.empty);
+                    empty.setVisibility(View.GONE);
+                    plansRecyclerView.setVisibility(View.VISIBLE);
+                } else {
+                    empty = findViewById(R.id.empty);
+                    String emptyString = "Looks like your list is empty,\nadd new a plan!";
+                    empty.setText(emptyString);
+                    empty.setVisibility(View.VISIBLE);
+                    plansRecyclerView.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
 
 }
