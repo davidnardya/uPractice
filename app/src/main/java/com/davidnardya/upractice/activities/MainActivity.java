@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
     public static final String MainActivityEXTRA_PLAN_ID = "com.davidnardya.upractice.MainActivity.EXTRA_PLAN_ID";
     String planID;
 
-
     private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
 
     private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -92,10 +91,15 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
         plansRecyclerView = findViewById(R.id.plans_recycler_view);
         addNewActivityFab = findViewById(R.id.add_new_plan_to_plans_page_fab);
 
+        configureActivity();
+
+    }
+
+    private void configureActivity() {
         openFragment();
+        configureButtons();
 
         Query query = plansCollection;
-
         PagedList.Config config = new PagedList.Config.Builder()
                 .setInitialLoadSizeHint(5)
                 .setPageSize(5)
@@ -121,20 +125,23 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
             }
         });
 
-        //logout click listener
-        logOutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        retrieveGoogleAccountUsername();
+    }
 
-                PopupMenu popupMenu = new PopupMenu(MainActivity.this, v);
-                popupMenu.setOnMenuItemClickListener(MainActivity.this);
-                popupMenu.inflate(R.menu.main_activity_popup_menu);
-                popupMenu.show();
-            }
-        });
+    private void retrieveGoogleAccountUsername() {
+        //Used to retrieve username from Google account
+        signInAccount = GoogleSignIn.getLastSignedInAccount(this);
+        welcomeText = "Welcome, " + signInAccount.getDisplayName();
+        userNameDisplay.setText(welcomeText);
+    }
 
 
+    private void configureButtons() {
+        configureLogoutButton();
+        configureFAB();
+    }
 
+    private void configureFAB() {
         //new plan click listener
         addNewActivityFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,13 +150,6 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
                 startActivity(intent);
             }
         });
-
-        //Used to retrieve username from Google account
-        signInAccount = GoogleSignIn.getLastSignedInAccount(this);
-        welcomeText = "Welcome, " + signInAccount.getDisplayName();
-        userNameDisplay.setText(welcomeText);
-
-
     }
 
     @Override
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
         startActivity(intent);
     }
 
-    public void openFragment(){
+    public void openFragment() {
         fragment = SplashScreenFragment.newInstance();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -195,7 +195,6 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
             }
         }, 3000);
 
-
     }
 
     public void hideRecyclerViewIfEmpty() {
@@ -213,6 +212,20 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
                     empty.setVisibility(View.VISIBLE);
                     plansRecyclerView.setVisibility(View.GONE);
                 }
+            }
+        });
+    }
+
+    private void configureLogoutButton() {
+        //logout click listener
+        logOutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this, v);
+                popupMenu.setOnMenuItemClickListener(MainActivity.this);
+                popupMenu.inflate(R.menu.main_activity_popup_menu);
+                popupMenu.show();
             }
         });
     }

@@ -42,23 +42,26 @@ import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
 
+    //Final properties
     private static final String TAG = "GOOGLE_SIGN_IN";
-    private GoogleSignInClient mGoogleSignInClient;
     private static final int RC_SIGN_IN = 1231;
-    private FirebaseAuth mAuth;
+
+    //Buttons
     private Button revokeAccessBtn;
     SignInButton signInButton;
+
+    //Other properties
+    private GoogleSignInClient mGoogleSignInClient;
+    private FirebaseAuth mAuth;
     TextView textView;
-
     SplashScreenFragment fragment;
-
 
     @Override
     protected void onStart() {
         super.onStart();
 
         FirebaseUser user = mAuth.getCurrentUser();
-        if(user!=null){
+        if (user != null) {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
         }
@@ -70,21 +73,30 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
 
-        signInRequest();
-
         signInButton = findViewById(R.id.sign_in_google_btn);
         textView = findViewById(R.id.signinwithgoogl_textview);
         revokeAccessBtn = findViewById(R.id.revoke_access_btn);
 
+        configureActivity();
+    }
+
+    private void configureActivity() {
+        signInRequest();
+        configureSignInButton();
+        setText();
+        configureRevokeButton();
+    }
+
+    private void configureSignInButton() {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signIn();
             }
         });
+    }
 
-        setText();
-
+    private void configureRevokeButton() {
         revokeAccessBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,16 +142,16 @@ public class LoginActivity extends AppCompatActivity {
                         FirebaseFirestore.getInstance().collection("Users")
                                 .document(userID).collection("Plans").get()
                                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                            @Override
-                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                Log.d(TAG, "onSuccess: ");
-                                QuerySnapshot querySnapshot = queryDocumentSnapshots;
-                                AppDB.getInstance(getApplicationContext()).entitiesDao()
-                                        .insertExercises(queryDocumentSnapshots.toObjects(Exercise.class));
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intent);
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                        Log.d(TAG, "onSuccess: ");
+                                        QuerySnapshot querySnapshot = queryDocumentSnapshots;
+                                        AppDB.getInstance(getApplicationContext()).entitiesDao()
+                                                .insertExercises(queryDocumentSnapshots.toObjects(Exercise.class));
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Log.d(TAG, "onFailure: " + e);
@@ -150,7 +162,7 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    public void signInRequest(){
+    public void signInRequest() {
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -161,7 +173,7 @@ public class LoginActivity extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
-    public void revokeAccess(){
+    public void revokeAccess() {
         mGoogleSignInClient.revokeAccess();
         final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
         loadingDialog.startLoadingDialog();
@@ -182,7 +194,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    public void openFragment(){
+    public void openFragment() {
         fragment = SplashScreenFragment.newInstance();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();

@@ -13,6 +13,7 @@ import com.davidnardya.upractice.activities.ViewPlanActivity;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
+    //Strings
     String planID, exerciseID;
     public static final String AlarmReceiverEXTRA_PLAN_ID = "com.davidnardya.upractice.AlarmReceiver.EXTRA_PLAN_ID";
     public static final String AlarmReceiverEXTRA_EXERCISE_ID = "com.davidnardya.upractice.AlarmReceiver.EXTRA_EXERCISE_ID";

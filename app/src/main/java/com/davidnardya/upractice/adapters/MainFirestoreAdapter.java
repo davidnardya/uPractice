@@ -31,16 +31,14 @@ import java.util.List;
 
 public class MainFirestoreAdapter extends FirestorePagingAdapter<Plan, MainFirestoreAdapter.PlanViewHolder> {
 
-    private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
-
+    //Primitive properties
     private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-    CollectionReference plansRef = dataBase.collection("Users").document(userID).collection("Plans");
-    List<Exercise> fullExercisesList = new ArrayList<>();
-    List<Exercise> completedExercisesList = new ArrayList<>();
-
     int allExercises;
     int completedExercises;
 
+    //Other properties
+    private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
+    CollectionReference plansRef = dataBase.collection("Users").document(userID).collection("Plans");
     private OnPlanClick onPlanClick;
 
     public MainFirestoreAdapter(@NonNull FirestorePagingOptions<Plan> options, OnPlanClick onPlanClick) {
@@ -56,7 +54,6 @@ public class MainFirestoreAdapter extends FirestorePagingAdapter<Plan, MainFires
 
     @Override
     protected void onBindViewHolder(@NonNull final MainFirestoreAdapter.PlanViewHolder holder, final int position, @NonNull final Plan model) {
-
 
         plansRef.document(model.getPlanID()).collection("Exercises").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -75,21 +72,17 @@ public class MainFirestoreAdapter extends FirestorePagingAdapter<Plan, MainFires
                         }
                     }
                 }
-
                 int progress;
-                if(allExercises != 0){
+                if (allExercises != 0) {
                     progress = completedExercises * 100 / allExercises;
                 } else {
                     progress = 0;
                 }
-
                 holder.planName.setText(model.getPlanName());
                 holder.progressBar.setProgress(progress);
             }
 
         });
-
-
     }
 
     public class PlanViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -104,7 +97,6 @@ public class MainFirestoreAdapter extends FirestorePagingAdapter<Plan, MainFires
             progressBar = itemView.findViewById(R.id.plan_progress_bar);
 
             itemView.setOnClickListener(this);
-
         }
 
         @Override
@@ -116,6 +108,4 @@ public class MainFirestoreAdapter extends FirestorePagingAdapter<Plan, MainFires
     public interface OnPlanClick {
         void onPlanClick(DocumentSnapshot snapshot, int position);
     }
-
-
 }

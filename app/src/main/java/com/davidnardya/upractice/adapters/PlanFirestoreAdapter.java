@@ -34,7 +34,7 @@ public class PlanFirestoreAdapter extends FirestorePagingAdapter<Exercise, PlanF
     protected void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position, @NonNull Exercise model) {
         holder.exerciseName.setText(model.getExerciseName());
 
-        switch (model.getExerciseStatus()){
+        switch (model.getExerciseStatus()) {
             case NOT_STARTED:
                 holder.exerciseStatus.setBackgroundResource(R.color.exerciseStatusNotStarted);
                 break;
@@ -47,7 +47,6 @@ public class PlanFirestoreAdapter extends FirestorePagingAdapter<Exercise, PlanF
             default:
                 break;
         }
-
     }
 
     public class ExerciseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -60,10 +59,7 @@ public class PlanFirestoreAdapter extends FirestorePagingAdapter<Exercise, PlanF
 
             exerciseName = itemView.findViewById(R.id.single_cell_plan_name_text_view);
             exerciseStatus = itemView.findViewById(R.id.exercise_status_single_cell);
-
-
             itemView.setOnClickListener(this);
-
         }
 
         @Override

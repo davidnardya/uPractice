@@ -31,27 +31,27 @@ import java.util.Date;
 
 public class ViewExerciseActivity extends AppCompatActivity {
 
+    //Strings
+    public static final String ViewExerciseActivityEXTRA_PLAN_NAME = "com.davidnardya.upractice.ViewExerciseActivity.EXTRA_PLAN_NAME";
+    public static final String ViewExerciseActivityEXTRA_PLAN_ID = "com.davidnardya.upractice.ViewExerciseActivity.EXTRA_PLAN_ID";
+    public static final String ViewExerciseActivityEXTRA_PLAN_DESCRIPTION = "com.davidnardya.ViewExerciseActivity.activities.EXTRA_PLAN_DESCRIPTION";
+    public static final String ViewExerciseActivityEXTRA_EXERCISE_ID = "com.davidnardya.upractice.ViewExerciseActivity.EXTRA_EXERCISE_ID";
     private static final String TAG = "ViewExerciseActivity";
     String planID, exerciseID, planName, planDescription;
-    TextView exerciseName, exerciseDescription, exerceiseDateTextView;
-    Button editExerciseButton;
+    private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+
+    //Radio group
     RadioGroup radioGroup;
     RadioButton radioButton;
     RadioButton rbNotStarted;
     RadioButton rbInProgress;
     RadioButton rbCompleted;
 
-    public static final String ViewExerciseActivityEXTRA_PLAN_NAME = "com.davidnardya.upractice.ViewExerciseActivity.EXTRA_PLAN_NAME";
-    public static final String ViewExerciseActivityEXTRA_PLAN_ID = "com.davidnardya.upractice.ViewExerciseActivity.EXTRA_PLAN_ID";
-    public static final String ViewExerciseActivityEXTRA_PLAN_DESCRIPTION = "com.davidnardya.ViewExerciseActivity.activities.EXTRA_PLAN_DESCRIPTION";
-    public static final String ViewExerciseActivityEXTRA_EXERCISE_ID = "com.davidnardya.upractice.ViewExerciseActivity.EXTRA_EXERCISE_ID";
-
-
-
+    //Other properties
+    TextView exerciseName, exerciseDescription, exerceiseDateTextView;
+    Button editExerciseButton;
     private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
-
-    private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
     DocumentReference exerciseRef;
 
     @Override
@@ -63,25 +63,30 @@ public class ViewExerciseActivity extends AppCompatActivity {
         exerciseDescription = findViewById(R.id.exercise_details_exercise_description_text_view);
         exerceiseDateTextView = findViewById(R.id.view_exercise_page_exercise_alert_date_text_view);
         editExerciseButton = findViewById(R.id.edit_exercise_button);
-
         radioGroup = findViewById(R.id.radio_group);
         rbNotStarted = findViewById(R.id.rb_not_started);
         rbInProgress = findViewById(R.id.rb_in_progress);
         rbCompleted = findViewById(R.id.rb_completed);
 
-        Intent intent = getIntent();
-        if(intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID) != null){
-            planID = intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID);
-            exerciseID = intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_EXERCISE_ID);
-        } else if (intent.getStringExtra(AddNewExerciseActivity.AddNewExerciseActivityEXTRA_PLAN_ID) != null){
-            planID = intent.getStringExtra(AddNewExerciseActivity.AddNewExerciseActivityEXTRA_PLAN_ID);
-            exerciseID = intent.getStringExtra(AddNewExerciseActivity.AddNewExerciseActivityEXTRA_EXERCISE_ID);
-        } else if (intent.getStringExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID) != null){
-            planID = intent.getStringExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID);
-            exerciseID = intent.getStringExtra(NotificationService.NotificationServiceEXTRA_EXERCISE_ID);
-        }
+        configureActivity();
+    }
 
+    private void configureActivity() {
+        configureGetIntent();
+        configureExercise();
+        configureEditExerciseButton();
+    }
 
+    private void configureEditExerciseButton() {
+        editExerciseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                passDataToNewExerciseActivity();
+            }
+        });
+    }
+
+    private void configureExercise() {
         //To get the exercise's details
         exerciseRef = dataBase.collection("Users").document(userID)
                 .collection("Plans").document(planID)
@@ -90,7 +95,7 @@ public class ViewExerciseActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 DocumentSnapshot document = task.getResult();
-                if (document != null){
+                if (document != null) {
                     exerciseName.setText(document.getString("exerciseName"));
                     exerciseDescription.setText(document.getString("exerciseDescription"));
 
@@ -106,7 +111,7 @@ public class ViewExerciseActivity extends AppCompatActivity {
 
                     Exercise exercise = document.toObject(Exercise.class);
                     if (exercise != null) {
-                        switch (exercise.getExerciseStatus()){
+                        switch (exercise.getExerciseStatus()) {
                             case UNKNOWN:
                                 rbNotStarted.setChecked(true);
                                 break;
@@ -128,23 +133,30 @@ public class ViewExerciseActivity extends AppCompatActivity {
                 }
             }
         });
-
-        editExerciseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                passDataToNewExerciseActivity();
-            }
-        });
     }
 
-    public void checkButton(View v){
+    private void configureGetIntent() {
+        Intent intent = getIntent();
+        if (intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID) != null) {
+            planID = intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID);
+            exerciseID = intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_EXERCISE_ID);
+        } else if (intent.getStringExtra(AddNewExerciseActivity.AddNewExerciseActivityEXTRA_PLAN_ID) != null) {
+            planID = intent.getStringExtra(AddNewExerciseActivity.AddNewExerciseActivityEXTRA_PLAN_ID);
+            exerciseID = intent.getStringExtra(AddNewExerciseActivity.AddNewExerciseActivityEXTRA_EXERCISE_ID);
+        } else if (intent.getStringExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID) != null) {
+            planID = intent.getStringExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID);
+            exerciseID = intent.getStringExtra(NotificationService.NotificationServiceEXTRA_EXERCISE_ID);
+        }
+    }
+
+    public void checkButton(View v) {
         int radioId = radioGroup.getCheckedRadioButtonId();
         radioButton = findViewById(radioId);
 
         String id = radioButton.getText().toString();
         ExerciseStatus exerciseStatusUpdate;
 
-        switch (id){
+        switch (id) {
             case "Not Started":
                 exerciseStatusUpdate = ExerciseStatus.NOT_STARTED;
                 exerciseRef.update("exerciseStatus", exerciseStatusUpdate);
@@ -173,12 +185,12 @@ public class ViewExerciseActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(ViewExerciseActivity.this, ViewPlanActivity.class);
-        intent.putExtra(ViewExerciseActivityEXTRA_PLAN_ID,planID);
+        intent.putExtra(ViewExerciseActivityEXTRA_PLAN_ID, planID);
         startActivity(intent);
         finish();
     }
 
-    public void passDataToNewExerciseActivity(){
+    public void passDataToNewExerciseActivity() {
         Intent intent = new Intent(ViewExerciseActivity.this, AddNewExerciseActivity.class);
         intent.putExtra(ViewExerciseActivityEXTRA_PLAN_ID, planID);
         intent.putExtra(ViewExerciseActivityEXTRA_EXERCISE_ID, exerciseID);

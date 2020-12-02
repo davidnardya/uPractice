@@ -8,14 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.davidnardya.upractice.R
+
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val PLAN_DESCRIPTION = "planDescription"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [PlanDescriptionFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class PlanDescriptionFragment : Fragment() {
     private var planDescription: String? = null
     private var planDescriptionTextView: TextView? = null
@@ -44,7 +40,8 @@ class PlanDescriptionFragment : Fragment() {
 
     companion object {
 
-        @JvmStatic fun newInstance(planDescription: String) =
+        @JvmStatic
+        fun newInstance(planDescription: String) =
                 PlanDescriptionFragment().apply {
                     arguments = Bundle().apply {
                         putString(PLAN_DESCRIPTION, planDescription)

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 public class Plan {
 
     private String planName, planDescription, planID;
-//    private Timestamp timestamp;
 
     public Plan() {
     }

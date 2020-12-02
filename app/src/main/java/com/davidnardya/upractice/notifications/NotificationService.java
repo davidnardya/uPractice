@@ -24,18 +24,15 @@ import java.util.Random;
 
 public class NotificationService extends IntentService {
 
+    //Strings
     public static final String NotificationServiceEXTRA_PLAN_ID = "com.davidnardya.upractice.NotificationService.EXTRA_PLAN_ID";
     public static final String NotificationServiceEXTRA_EXERCISE_ID = "com.davidnardya.upractice.NotificationService.EXTRA_EXERCISE_ID";
-    public static final String NotificationServiceEXTRA_NOTIFICATION_TITLE = "com.davidnardya.upractice.NotificationService.EXTRA_NOTIFICATION_TITLE";
-    public static final String NotificationServiceEXTRA_NOTIFICATION_TEXT = "com.davidnardya.upractice.NotificationService.EXTRA_NOTIFICATION_TEXT";
-    String planID, exerciseID;
+    String planID, exerciseID, notificationTitle, notificationText;
+
+    //Integers
     int pendingIntentRequestCode, pendingContentRequestCode, pendingActionRequestCode;
 
-    /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
-     *
-     * @param name Used to name the worker thread, important only for debugging.
-     */
+    //Constructors
     public NotificationService(String name) {
         super(name);
     }
@@ -47,22 +44,18 @@ public class NotificationService extends IntentService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        String notificationTitle = intent.getStringExtra(AlarmReceiver.AlarmReceiverEXTRA_NOTIFICATION_TITLE);
-        String notificationText = intent.getStringExtra(AlarmReceiver.AlarmReceiverEXTRA_NOTIFICATION_TEXT);
+        notificationTitle = intent.getStringExtra(AlarmReceiver.AlarmReceiverEXTRA_NOTIFICATION_TITLE);
+        notificationText = intent.getStringExtra(AlarmReceiver.AlarmReceiverEXTRA_NOTIFICATION_TEXT);
         planID = intent.getStringExtra(AlarmReceiver.AlarmReceiverEXTRA_PLAN_ID);
         exerciseID = intent.getStringExtra(AlarmReceiver.AlarmReceiverEXTRA_EXERCISE_ID);
 
-        Random random = new Random();
-        pendingIntentRequestCode = random.nextInt(1000) + 1;
-        pendingContentRequestCode = random.nextInt(1000) + 1;
-        if (pendingContentRequestCode == pendingIntentRequestCode) {
-            pendingContentRequestCode--;
-        }
-        pendingActionRequestCode = random.nextInt(1000) + 1;
-        if (pendingActionRequestCode == pendingIntentRequestCode || pendingActionRequestCode == pendingContentRequestCode) {
-            pendingActionRequestCode--;
-        }
+        generateRandomCodes();
+        configureAlertAction();
 
+        return START_NOT_STICKY;
+    }
+
+    private void configureAlertAction() {
         //When user clicks on the notification
         Intent notificationIntent = new Intent(this, ViewExerciseActivity.class);
         notificationIntent.putExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID, planID);
@@ -78,7 +71,7 @@ public class NotificationService extends IntentService {
 
         PendingIntent actionIntent = PendingIntent.getActivity(this, pendingActionRequestCode, editNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Uri uri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         Notification notification = new NotificationCompat.Builder(this, App.CUSTOM_NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_alarm_24)
@@ -99,8 +92,19 @@ public class NotificationService extends IntentService {
         startForeground(pendingIntentRequestCode, notification);
 
         stopSelf();
+    }
 
-        return START_NOT_STICKY;
+    private void generateRandomCodes() {
+        Random random = new Random();
+        pendingIntentRequestCode = random.nextInt(1000) + 1;
+        pendingContentRequestCode = random.nextInt(1000) + 1;
+        if (pendingContentRequestCode == pendingIntentRequestCode) {
+            pendingContentRequestCode--;
+        }
+        pendingActionRequestCode = random.nextInt(1000) + 1;
+        if (pendingActionRequestCode == pendingIntentRequestCode || pendingActionRequestCode == pendingContentRequestCode) {
+            pendingActionRequestCode--;
+        }
     }
 
     @Nullable

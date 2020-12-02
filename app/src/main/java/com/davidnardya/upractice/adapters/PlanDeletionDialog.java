@@ -28,15 +28,17 @@ import java.util.List;
 
 public class PlanDeletionDialog extends AppCompatDialogFragment {
 
-    private boolean deletePlan = false;
-    private PlanDeletionListener planDeletionListener;
-    public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
-
+    //Strings
     String planID;
     String exerciseID;
+    private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    public static final String EXTRA_PLAN_ID = "com.davidnardya.upractice.activities.EXTRA_PLAN_ID";
+
+    //Other properties
+    private boolean deletePlan = false;
+    private PlanDeletionListener planDeletionListener;
     private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
 
-    private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     public PlanDeletionDialog(String planID, String exerciseID){
         this.planID = planID;

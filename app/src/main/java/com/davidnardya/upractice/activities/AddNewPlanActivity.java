@@ -18,15 +18,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class AddNewPlanActivity extends AppCompatActivity {
 
-    EditText newPlanName, newPlanDescription;
-    FloatingActionButton addExerciseFAB;
+    //Strings
     public static final String AddNewPlanActivityEXTRA_PLAN_NAME = "com.davidnardya.upractice.AddNewPlanActivity.EXTRA_PLAN_NAME";
     public static final String AddNewPlanActivityEXTRA_PLAN_DESCRIPTION = "com.davidnardya.upractice.AddNewPlanActivity.EXTRA_PLAN_DESCRIPTION";
     public static final String AddNewPlanActivityEXTRA_PLAN_ID = "com.davidnardya.upractice.AddNewPlanActivity.EXTRA_PLAN_ID";
-
     String planName, planDescription, planID;
-
     String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+    //Other properties
+    EditText newPlanName, newPlanDescription;
+    FloatingActionButton addExerciseFAB;
     FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
     DocumentReference planRef = dataBase.collection("Users").document(userID)
             .collection("Plans").document();
@@ -40,26 +41,29 @@ public class AddNewPlanActivity extends AppCompatActivity {
         newPlanDescription = findViewById(R.id.new_plan_description_edit_text);
         addExerciseFAB = findViewById(R.id.add_new_exercise_fab);
 
+        configureFAB();
+    }
+
+    private void configureFAB(){
         addExerciseFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 createPlanInDataBase();
             }
         });
-
     }
 
-    public void createPlanInDataBase(){
-            planName = newPlanName.getText().toString();
-            planDescription = newPlanDescription.getText().toString();
-            Plan plan = new Plan(planName, planDescription);
-            plan.setPlanID(planRef.getId());
-            planID = plan.getPlanID();
-            planRef.set(plan);
-            passDataToNewExerciseActivity();
+    public void createPlanInDataBase() {
+        planName = newPlanName.getText().toString();
+        planDescription = newPlanDescription.getText().toString();
+        Plan plan = new Plan(planName, planDescription);
+        plan.setPlanID(planRef.getId());
+        planID = plan.getPlanID();
+        planRef.set(plan);
+        passDataToNewExerciseActivity();
     }
 
-    public void passDataToNewExerciseActivity(){
+    public void passDataToNewExerciseActivity() {
 
         Intent intent = new Intent(AddNewPlanActivity.this, AddNewExerciseActivity.class);
         intent.putExtra(AddNewPlanActivityEXTRA_PLAN_NAME, planName);

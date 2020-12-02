@@ -45,28 +45,30 @@ import java.util.Random;
 
 public class AddNewExerciseActivity extends AppCompatActivity {
 
-    EditText newExerciseName, newExerciseDescription;
-    FloatingActionButton finishExerciseFAB;
-    String ExerciseName, ExerciseDescription;
-    ExerciseStatus exerciseStatus = ExerciseStatus.NOT_STARTED;
-    Button pickTimeButton, pickDateButton;
-
-    Calendar timePicked = Calendar.getInstance();
-
-    String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-    FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
-
-
-    String exerciseID;
-    String planName, planDescription, planID;
-    Timestamp timestamp;
-    Timestamp datestamp;
-    DocumentReference exerciseRef;
-
+    //Strings
     public static final String AddNewExerciseActivityEXTRA_PLAN_ID = "com.davidnardya.upractice.AddNewExerciseActivity.EXTRA_PLAN_ID";
     public static final String AddNewExerciseActivityEXTRA_EXERCISE_ID = "com.davidnardya.upractice.AddNewExerciseActivity.EXTRA_EXERCISE_ID";
     public static final String AddNewExerciseActivityEXTRA_NOTIFICATION_TITLE = "com.davidnardya.upractice.AddNewExerciseActivity.EXTRA_NOTIFICATION_TITLE";
     public static final String AddNewExerciseActivityEXTRA_NOTIFICATION_TEXT = "com.davidnardya.upractice.AddNewExerciseActivity.EXTRA_NOTIFICATION_TEXT";
+    String ExerciseName, ExerciseDescription;
+    String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    String exerciseID;
+    String planName, planDescription, planID;
+
+    //Buttons
+    FloatingActionButton finishExerciseFAB;
+    Button pickTimeButton, pickDateButton;
+
+    //Times stamps
+    Timestamp timestamp;
+    Timestamp datestamp;
+
+    //Other properties
+    EditText newExerciseName, newExerciseDescription;
+    ExerciseStatus exerciseStatus = ExerciseStatus.NOT_STARTED;
+    Calendar timePicked = Calendar.getInstance();
+    FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
+    DocumentReference exerciseRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,41 +81,38 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         pickTimeButton = findViewById(R.id.exercise_set_time_button);
         pickDateButton = findViewById(R.id.exercise_set_date_button);
 
+        configureActivity();
+    }
+
+    private void configureActivity() {
+        defineGetIntent();
+        configureFAB();
+        configureDatePicked();
+    }
+
+    private void defineGetIntent() {
         Intent intent = getIntent();
-        if(intent.getStringExtra(AddNewPlanActivity.AddNewPlanActivityEXTRA_PLAN_NAME) != null){
+        if (intent.getStringExtra(AddNewPlanActivity.AddNewPlanActivityEXTRA_PLAN_NAME) != null) {
             planName = intent.getStringExtra(AddNewPlanActivity.AddNewPlanActivityEXTRA_PLAN_NAME);
             planDescription = intent.getStringExtra(AddNewPlanActivity.AddNewPlanActivityEXTRA_PLAN_DESCRIPTION);
             planID = intent.getStringExtra(AddNewPlanActivity.AddNewPlanActivityEXTRA_PLAN_ID);
-        } else if (intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID) != null){
+        } else if (intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID) != null) {
             planID = intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID);
             exerciseID = intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_EXERCISE_ID);
         } else if (intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID) != null) {
             planID = intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID);
             exerciseID = intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_EXERCISE_ID);
             setExistingExercise();
-        } else if (intent.getStringExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID) != null){
+        } else if (intent.getStringExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID) != null) {
             planID = intent.getStringExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID);
             exerciseID = intent.getStringExtra(NotificationService.NotificationServiceEXTRA_EXERCISE_ID);
             setExistingExercise();
         } else {
             Log.d("SomethingIsWrong", "onCreate: ");
         }
+    }
 
-        finishExerciseFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = getIntent();
-                if(intent.getStringExtra(AddNewPlanActivity.AddNewPlanActivityEXTRA_PLAN_NAME) != null ||
-                        intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID) != null){
-                    createNewExercise();
-                } else if (intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID) != null) {
-                    editExercise();
-                } else if (intent.getStringExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID) != null){
-                    editExercise();
-                }
-            }
-        });
-
+    private void configureDatePicked() {
         Calendar calendar = Calendar.getInstance();
         final int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
         final int currentMinute = calendar.get(Calendar.MINUTE);
@@ -125,17 +124,17 @@ public class AddNewExerciseActivity extends AppCompatActivity {
             public void onClick(View v) {
                 TimePickerDialog timePickerDialog = new TimePickerDialog(AddNewExerciseActivity.this,
                         new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        timePicked = Calendar.getInstance();
-                        timePicked.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        timePicked.set(Calendar.MINUTE, minute);
-                        timePicked.set(Calendar.SECOND, 0);
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-                        String time = simpleDateFormat.format(timePicked.getTime());
-                        pickTimeButton.setText(time);
-                    }
-                },currentHour,currentMinute,android.text.format.DateFormat.is24HourFormat(AddNewExerciseActivity.this));
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                timePicked = Calendar.getInstance();
+                                timePicked.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                                timePicked.set(Calendar.MINUTE, minute);
+                                timePicked.set(Calendar.SECOND, 0);
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                                String time = simpleDateFormat.format(timePicked.getTime());
+                                pickTimeButton.setText(time);
+                            }
+                        }, currentHour, currentMinute, android.text.format.DateFormat.is24HourFormat(AddNewExerciseActivity.this));
                 timePickerDialog.show();
             }
         });
@@ -145,22 +144,38 @@ public class AddNewExerciseActivity extends AppCompatActivity {
             public void onClick(View v) {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(AddNewExerciseActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        timePicked.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        timePicked.set(Calendar.MONTH, month);
-                        timePicked.set(Calendar.YEAR, year);
-                        String date = DateFormat.getDateInstance(DateFormat.FULL).format(timePicked.getTime());
-                        pickDateButton.setText(date);
-                    }
-                },currentYear,currentMonth,currentDay);
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                timePicked.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                                timePicked.set(Calendar.MONTH, month);
+                                timePicked.set(Calendar.YEAR, year);
+                                String date = DateFormat.getDateInstance(DateFormat.FULL).format(timePicked.getTime());
+                                pickDateButton.setText(date);
+                            }
+                        }, currentYear, currentMonth, currentDay);
                 datePickerDialog.show();
             }
         });
-
     }
 
-    public void createNewExercise(){
+    private void configureFAB() {
+        finishExerciseFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = getIntent();
+                if (intent.getStringExtra(AddNewPlanActivity.AddNewPlanActivityEXTRA_PLAN_NAME) != null ||
+                        intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID) != null) {
+                    createNewExercise();
+                } else if (intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID) != null) {
+                    editExercise();
+                } else if (intent.getStringExtra(NotificationService.NotificationServiceEXTRA_PLAN_ID) != null) {
+                    editExercise();
+                }
+            }
+        });
+    }
+
+    public void createNewExercise() {
 
         ExerciseName = newExerciseName.getText().toString();
         ExerciseDescription = newExerciseDescription.getText().toString();
@@ -183,7 +198,7 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void editExercise(){
+    public void editExercise() {
         exerciseRef = dataBase.collection("Users").document(userID)
                 .collection("Plans").document(planID)
                 .collection("Exercises").document(exerciseID);
@@ -201,7 +216,7 @@ public class AddNewExerciseActivity extends AppCompatActivity {
 
                     if (statusString.equals(inProgress)) {
                         exerciseStatusTemp = ExerciseStatus.IN_PROGRESS;
-                    } else if (statusString.equals(completed)){
+                    } else if (statusString.equals(completed)) {
                         exerciseStatusTemp = ExerciseStatus.COMPLETED;
                     }
 
@@ -269,32 +284,6 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, timePicked.getTimeInMillis(), pendingIntent);
 
 
-    }
-
-    private void cancelAlarm(){
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
-
-        alarmManager.cancel(pendingIntent);
-    }
-
-    public void startService(){
-
-        String notificationTitle = "This is a reminder for your " + newExerciseName.getText().toString() + " exercise!";
-        String notificationText = "Click to view your exercise!";
-
-        Intent notificationServiceIntent = new Intent(this, NotificationService.class);
-        notificationServiceIntent.putExtra(AddNewExerciseActivityEXTRA_NOTIFICATION_TITLE, notificationTitle);
-        notificationServiceIntent.putExtra(AddNewExerciseActivityEXTRA_NOTIFICATION_TEXT, notificationText);
-        notificationServiceIntent.putExtra(AddNewExerciseActivityEXTRA_PLAN_ID, planID);
-        notificationServiceIntent.putExtra(AddNewExerciseActivityEXTRA_EXERCISE_ID, exerciseID);
-        ContextCompat.startForegroundService(this, notificationServiceIntent);
-    }
-
-    public void stopService(){
-        Intent notificationServiceIntent = new Intent(this, NotificationService.class);
-        stopService(notificationServiceIntent);
     }
 
     private void setExistingExercise() {

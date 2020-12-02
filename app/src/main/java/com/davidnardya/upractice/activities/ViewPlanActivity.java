@@ -46,25 +46,27 @@ import java.util.Objects;
 public class ViewPlanActivity extends AppCompatActivity implements PlanFirestoreAdapter.OnExerciseClick,
         PlanDeletionDialog.PlanDeletionListener {
 
+    //Strings
     public static final String ViewPlanActivityEXTRA_PLAN_ID = "com.davidnardya.upractice.ViewPlanActivity.EXTRA_PLAN_ID";
     public static final String ViewPlanActivityEXTRA_EXERCISE_ID = "com.davidnardya.upractice.ViewPlanActivity.EXTRA_EXERCISE_ID";
-
     String planID;
     String exerciseID;
-    private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
-
     private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+    //Booleans
+    boolean deletePlan;
+    boolean fragmentIsActive = false;
+
+    //References
     private CollectionReference exercisesCollection;
     private RecyclerView exercisesRecyclerView;
 
+    //Other properties
+    private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
     PlanFirestoreAdapter adapter;
     TextView planName;
     FloatingActionButton addNewExerciseFab;
     CardView viewPlansPageCardView;
-
-    boolean deletePlan;
-    boolean fragmentIsActive = false;
-
     private FrameLayout planDescriptionFragmentContainer;
     PlanDescriptionFragment fragment;
 
@@ -73,40 +75,44 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_plan);
 
-        Intent intent = getIntent();
-        if (intent.getStringExtra(MainActivity.MainActivityEXTRA_PLAN_ID) != null) {
-            planID = intent.getStringExtra(MainActivity.MainActivityEXTRA_PLAN_ID);
-        } else if (intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID) != null){
-            planID = intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID);
-        } else if (intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID) != null){
-            planID = intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID);
-        } else {
-            Toast.makeText(this, "Plan ID is Null", Toast.LENGTH_SHORT).show();
-        }
-
         exercisesRecyclerView = findViewById(R.id.exercises_recycler_view);
         planName = findViewById(R.id.plan_details_plan_name_text_view);
         addNewExerciseFab = findViewById(R.id.add_new_exercise_to_plan_page_fab);
         planDescriptionFragmentContainer = findViewById(R.id.plan_description_fragment_container);
         viewPlansPageCardView = findViewById(R.id.view_plans_page_card_view);
 
+        configureActivity();
+    }
+
+    private void configureExerciseCollectionReference() {
         exercisesCollection = dataBase.collection("Users").document(userID)
                 .collection("Plans").document(planID).collection("Exercises");
+    }
 
-        //To get the parent's plan name
-        DocumentReference nameRef = dataBase.collection("Users")
-                .document(userID).collection("Plans").document(planID);
-        nameRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                DocumentSnapshot document = task.getResult();
-                if (document != null){
-                    planName.setText(document.getString("planName"));
-                } else {
-                    Toast.makeText(ViewPlanActivity.this, "Name is null!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+    private void configureGetIntent() {
+        Intent intent = getIntent();
+        if (intent.getStringExtra(MainActivity.MainActivityEXTRA_PLAN_ID) != null) {
+            planID = intent.getStringExtra(MainActivity.MainActivityEXTRA_PLAN_ID);
+        } else if (intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID) != null) {
+            planID = intent.getStringExtra(ViewExerciseActivity.ViewExerciseActivityEXTRA_PLAN_ID);
+        } else if (intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID) != null) {
+            planID = intent.getStringExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID);
+        } else {
+            Toast.makeText(this, "Plan ID is Null", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void configureActivity() {
+        configureGetIntent();
+        configureExerciseCollectionReference();
+        getPlanName();
+        configureRecyclerView();
+        configureFAB();
+        configureItemsBehaviour();
+        configurePlanNAmeClickable();
+    }
+
+    private void configureRecyclerView() {
         Query query = exercisesCollection;
 
         PagedList.Config config = new PagedList.Config.Builder()
@@ -134,14 +140,9 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
                         Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
-        addNewExerciseFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                passDataToNewExerciseActivity();
-            }
-        });
-
+    private void configureItemsBehaviour() {
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -160,7 +161,7 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
                         String id = queryDocumentSnapshots.getDocuments().get(viewHolder.getAdapterPosition()).getId();
                         int collectionCount = queryDocumentSnapshots.getDocuments().size();
 
-                        if(collectionCount > 1){
+                        if (collectionCount > 1) {
                             Exercise exerciseNameToDelete = queryDocumentSnapshots.getDocuments()
                                     .get(viewHolder.getAdapterPosition()).toObject(Exercise.class);
                             exercisesCollection.document(id).delete();
@@ -171,7 +172,7 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
                             intent.putExtra(ViewPlanActivity.ViewPlanActivityEXTRA_PLAN_ID, planID);
                             startActivity(intent);
                             finish();
-                        } else if (collectionCount == 1){
+                        } else if (collectionCount == 1) {
                             openDeletePlanDialog(planID, exerciseID);
                             adapter.notifyDataSetChanged();
                         }
@@ -179,7 +180,35 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
                 });
             }
         }).attachToRecyclerView(exercisesRecyclerView);
+    }
 
+    private void configureFAB() {
+        addNewExerciseFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                passDataToNewExerciseActivity();
+            }
+        });
+    }
+
+    private void getPlanName() {
+        //To get the parent's plan name
+        DocumentReference nameRef = dataBase.collection("Users")
+                .document(userID).collection("Plans").document(planID);
+        nameRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                DocumentSnapshot document = task.getResult();
+                if (document != null) {
+                    planName.setText(document.getString("planName"));
+                } else {
+                    Toast.makeText(ViewPlanActivity.this, "Name is null!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void configurePlanNAmeClickable() {
         planName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -190,7 +219,7 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         DocumentSnapshot document = task.getResult();
-                        if (document != null){
+                        if (document != null) {
                             String planDescription = document.getString("planDescription");
                             openFragment(planDescription);
                         } else {
@@ -198,9 +227,6 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
                         }
                     }
                 });
-
-
-
             }
         });
     }
@@ -228,7 +254,7 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
 
     @Override
     public void onBackPressed() {
-        if(!fragmentIsActive) {
+        if (!fragmentIsActive) {
             Intent intent = new Intent(ViewPlanActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
@@ -247,15 +273,14 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
         }
     }
 
-    public void passDataToNewExerciseActivity(){
-
+    public void passDataToNewExerciseActivity() {
         Intent intent = new Intent(ViewPlanActivity.this, AddNewExerciseActivity.class);
         intent.putExtra(ViewPlanActivityEXTRA_PLAN_ID, planID);
         startActivity(intent);
         finish();
     }
 
-    public void openDeletePlanDialog(String planIDToDelete, String exerciseIDToDelete){
+    public void openDeletePlanDialog(String planIDToDelete, String exerciseIDToDelete) {
         PlanDeletionDialog planDeletionDialog = new PlanDeletionDialog(planIDToDelete, exerciseIDToDelete);
         planDeletionDialog.show(getSupportFragmentManager(), "Deletion Dialog");
     }
@@ -266,7 +291,7 @@ public class ViewPlanActivity extends AppCompatActivity implements PlanFirestore
         deletePlan = ifTrueDeletePlan;
     }
 
-    public void openFragment(String planDescription){
+    public void openFragment(String planDescription) {
         fragment = PlanDescriptionFragment.newInstance(planDescription);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
