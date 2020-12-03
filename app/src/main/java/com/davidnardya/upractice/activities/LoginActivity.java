@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
-        signInRequest();
+
 
         signInButton = findViewById(R.id.sign_in_google_btn);
         textView = findViewById(R.id.signinwithgoogl_textview);
@@ -85,9 +85,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void configureActivity() {
+        signInRequest();
         configureSignInButton();
-        setText();
         configureRevokeButton();
+        setText();
     }
 
     private void configureSignInButton() {
