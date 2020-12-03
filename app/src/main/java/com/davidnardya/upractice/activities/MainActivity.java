@@ -3,6 +3,7 @@ package com.davidnardya.upractice.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.paging.PagedList;
@@ -33,6 +34,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
     private FirebaseFirestore dataBase = FirebaseFirestore.getInstance();
     SplashScreenFragment fragment;
     private CollectionReference plansCollection = dataBase.collection("Users").document(userID).collection("Plans");
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
@@ -74,7 +77,14 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
                 startActivity(intent);
                 return true;
             case R.id.popup_menu_info:
-                Toast.makeText(this, "Made by David Nardya", Toast.LENGTH_SHORT).show();
+                Snackbar snackbar = Snackbar.make(coordinatorLayout, "Made by David Nardya", Snackbar.LENGTH_INDEFINITE);
+                snackbar.setAction("Dismiss", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                });
+                snackbar.show();
                 return true;
             default:
                 return false;
@@ -90,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements MainFirestoreAdap
         userNameDisplay = findViewById(R.id.welcome_message_text_view);
         plansRecyclerView = findViewById(R.id.plans_recycler_view);
         addNewActivityFab = findViewById(R.id.add_new_plan_to_plans_page_fab);
+        coordinatorLayout = findViewById(R.id.snack_bar_coordinator_layout);
 
         configureActivity();
 

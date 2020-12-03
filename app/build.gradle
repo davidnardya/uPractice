@@ -65,4 +65,8 @@ dependencies {
 
     //Yoyo animations
     implementation 'com.daimajia.androidanimations:library:2.4@aar'
+
+    //Material design
+    implementation 'com.google.android.material:material:1.3.0-alpha04'
+
 }
