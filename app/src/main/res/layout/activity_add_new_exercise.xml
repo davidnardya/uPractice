@@ -110,18 +110,8 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Set Date"
+                    android:text="Set Date &amp; time"
                     />
-
-                <Button
-                    android:id="@+id/exercise_set_time_button"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Set Time"
-                    />
-
 
             </LinearLayout>
 
@@ -155,6 +145,8 @@
         android:layout_margin="50dp"
         android:src="@drawable/ic_check_black_24dp"
         android:elevation="5dp"
+        android:tint="@android:color/black"
+
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

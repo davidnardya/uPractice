@@ -1,6 +1,7 @@
 package com.davidnardya.upractice.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -11,6 +12,7 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -57,10 +59,9 @@ public class AddNewExerciseActivity extends AppCompatActivity {
 
     //Buttons
     FloatingActionButton finishExerciseFAB;
-    Button pickTimeButton, pickDateButton;
+    Button  pickDateButton;
 
     //Times stamps
-    Timestamp timestamp;
     Timestamp datestamp;
 
     //Other properties
@@ -78,7 +79,6 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         newExerciseName = findViewById(R.id.new_exercise_name_edit_text);
         newExerciseDescription = findViewById(R.id.new_exercise_description_edit_text);
         finishExerciseFAB = findViewById(R.id.finish_exercise_fab);
-        pickTimeButton = findViewById(R.id.exercise_set_time_button);
         pickDateButton = findViewById(R.id.exercise_set_date_button);
 
         configureActivity();
@@ -119,41 +119,40 @@ public class AddNewExerciseActivity extends AppCompatActivity {
         final int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
         final int currentMonth = calendar.get(Calendar.MONTH);
         final int currentYear = calendar.get(Calendar.YEAR);
-        pickTimeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(AddNewExerciseActivity.this,
-                        new TimePickerDialog.OnTimeSetListener() {
-                            @Override
-                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                                timePicked = Calendar.getInstance();
-                                timePicked.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                                timePicked.set(Calendar.MINUTE, minute);
-                                timePicked.set(Calendar.SECOND, 0);
-                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-                                String time = simpleDateFormat.format(timePicked.getTime());
-                                pickTimeButton.setText(time);
-                            }
-                        }, currentHour, currentMinute, android.text.format.DateFormat.is24HourFormat(AddNewExerciseActivity.this));
-                timePickerDialog.show();
-            }
-        });
 
         pickDateButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View v) {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(AddNewExerciseActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                timePicked.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                                timePicked.set(Calendar.MONTH, month);
-                                timePicked.set(Calendar.YEAR, year);
-                                String date = DateFormat.getDateInstance(DateFormat.FULL).format(timePicked.getTime());
-                                pickDateButton.setText(date);
                             }
                         }, currentYear, currentMonth, currentDay);
                 datePickerDialog.show();
+                datePickerDialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, final int year, final int month, final int dayOfMonth) {
+                        TimePickerDialog timePickerDialog = new TimePickerDialog(AddNewExerciseActivity.this,
+                                new TimePickerDialog.OnTimeSetListener() {
+                                    @Override
+                                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                        timePicked = Calendar.getInstance();
+                                        timePicked.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                                        timePicked.set(Calendar.MONTH, month);
+                                        timePicked.set(Calendar.YEAR, year);
+                                        timePicked.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                                        timePicked.set(Calendar.MINUTE, minute);
+                                        timePicked.set(Calendar.SECOND, 0);
+                                        @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MMM/yyyy HH:mm");
+                                        String time = simpleDateFormat.format(timePicked.getTime());
+                                        pickDateButton.setText(time);
+                                    }
+                                }, currentHour, currentMinute, android.text.format.DateFormat.is24HourFormat(AddNewExerciseActivity.this));
+                        timePickerDialog.show();
+                    }
+                });
             }
         });
     }
@@ -295,13 +294,9 @@ public class AddNewExerciseActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 DocumentSnapshot document = task.getResult();
                 if (document != null) {
-                    @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("HH:mm");
-                    @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MMM/yyyy");
-                    timestamp = (Timestamp) document.get("exerciseAlertDate");
+                    @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MMM/yyyy HH:mm");
                     datestamp = (Timestamp) document.get("exerciseAlertDate");
-                    String time = simpleTimeFormat.format(timestamp.toDate());
-                    String date = simpleDateFormat.format(timestamp.toDate());
-                    pickTimeButton.setText(time);
+                    String date = simpleDateFormat.format(datestamp.toDate());
                     pickDateButton.setText(date);
 
                     newExerciseName.setText(document.getString("exerciseName"));

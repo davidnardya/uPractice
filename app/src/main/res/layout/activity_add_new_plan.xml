@@ -91,6 +91,8 @@
         android:layout_margin="50dp"
         android:src="@drawable/ic_navigate_next_black_24dp"
         android:elevation="5dp"
+        android:tint="@android:color/black"
+
 
         />
 

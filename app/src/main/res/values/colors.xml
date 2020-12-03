@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#1840A3</color>
-    <color name="colorPrimaryDark">#005FB3</color>
-    <color name="colorAccent">#038FDA</color>
+    <color name="colorPrimary">#676767</color>
+    <color name="colorPrimaryDark">#858585</color>
+    <color name="colorAccent">#DAAB03</color>
 
-    <color name="exerciseStatusNotStarted">#D61916</color>
-    <color name="exerciseStatusInProgress">#F6F940</color>
-    <color name="exerciseStatusCompleted">#47EA60</color>
+    <color name="exerciseStatusNotStarted">#C62828</color>
+    <color name="exerciseStatusInProgress">#FBC02D</color>
+    <color name="exerciseStatusCompleted">#558B2F</color>
 
     <color name="planDescriptionFragment">#B4000000</color>
     <color name="planDescriptionFragmentFont">#D5D5D5</color>
