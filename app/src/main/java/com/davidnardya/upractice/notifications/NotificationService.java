@@ -18,8 +18,10 @@ import com.davidnardya.upractice.R;
 import com.davidnardya.upractice.activities.AddNewExerciseActivity;
 import com.davidnardya.upractice.activities.MainActivity;
 import com.davidnardya.upractice.activities.ViewExerciseActivity;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Objects;
 import java.util.Random;
 
 public class NotificationService extends IntentService {
@@ -50,7 +52,18 @@ public class NotificationService extends IntentService {
         exerciseID = intent.getStringExtra(AlarmReceiver.AlarmReceiverEXTRA_EXERCISE_ID);
 
         generateRandomCodes();
-        configureAlertAction();
+
+        String userID = null;
+        try {
+            userID = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        if(userID != null) {
+            configureAlertAction();
+        }
+
 
         return START_NOT_STICKY;
     }
